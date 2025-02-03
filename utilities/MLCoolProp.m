@@ -13,9 +13,9 @@
 %    Input1Val  = DOUBLE (array of size 1xM or scalar) of values related to the first input property                                                          
 %       Input2  = CHAR value accepted by CoolProp as second input pair property           
 %    Input2Val  = DOUBLE (array of size 1xN or scalar) of values related to the second input property                                                          
-%       Fluid   = CHAR value accepted by CoolProp as fluid values for multi-species, list species 1 to P 
-%                      (where P is specified by the Composition variable) separated by semicolons (;)                                             
-%  FluidComposition = DOUBLE (1xP array) of species fractions where (1 < P <= 20) and values must sum to 1                                  
+%       Fluid   = CHAR value accepted by CoolProp as fluid values for multi-species, list species 1 to numSpec 
+%                      (where numSpec is specified by the Composition variable) separated by semicolons (;)                                             
+%  FluidComposition = DOUBLE (1xnumSpec array) of species fractions where (1 < numSpec <= 20) and values must sum to 1                                  
 %  CoolPropDLLpath = CHAR path to CoolProp directory with the DLL (e.g. C:\\ProgramFiles (x86)\CoolProp)                          
 %  libMethod    = CHAR with the CoolProp library method to call - almost always it should be PropsSI                                                         
 %                                                                                         

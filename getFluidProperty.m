@@ -1,20 +1,35 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % [OUTPUT]:                                                                                                        
-% requestedPropertyValue = (double) value of the requested thermodynamic property as calculated by the library     
+% requestedPropertyValue = (double) (MxN) array of values for the requested thermodynamic property as calculated by the 
+%                                   library where M is the number of values for inputProperty1 and N is the number of
+%                                   values for inputProperty2
 % [INPUTS]:                                                                                                        
 % libraryLocation     = (string) the location of the REFPROP or CoolProp library files (dll, exe, etc.)            
 % requestedProperty   = (string) the thermodynamic property name for which the value will be returned              
 % inputProperty1      = (string) name of the 1st property used as the state point                                  
-% inputProperty1Value = (double) value of the 1st property used as the state point in the library’s expected units 
+% inputProperty1Value = (double) (1xM) array of values of the 1st property used as the state point in the library’s 
+%                                expected units 
 % inputProperty2      = (string) name of the 2nd property used as the state point                                  
-% inputProperty2Value = (double) value of the 2nd property used as the state point in the library’s expected units 
-% fluid               = (string) indicating the fluid for which the requested property should be calculated        
-% fluidComposition    = (double) array of size 1xP species fraction where 1 <= P <= 20, whose values must sum to 1 
-%                                P must match the number of species in the fluid                                   
+% inputProperty2Value = (double) (1xN) array of values of the 2nd property used as the state point in the library’s 
+%                                expected units 
+% fluid               = (string) indicating the fluid for which the requested property should be calculated
+%                                e.g., "Water", "Ethanol", "Nitrogen;Oxygen;Hydrogen;Water"
+%                                NOTE: if the user defines their own fluid, the species should be listed out as in the
+%                                      last example above using only a semicolon (;) to separate the species
+% fluidComposition    = (double) array of size 1xnumSpec species fraction where 1 <= numSpec <= 20, whose values must 
+%                                sum to 1; numSpec must match the number of species in the fluid
+%                                e.g., if fluid = "Water", (numSpec = 1)
+%                                         fluidComposition = 1;
+%                                      if fluid = "Nitrogen;Oxygen;Hydrogen;Water", (numSpec = 4)
+%                                         fluidComposition = [0.71, 0.16, 0.1, 0.03]
 % massOrMolar         = [REFPROP only] (int) value to determine input composition units: 0 -> Molar, 1 -> Mass     
 % desiredUnits        = [REFPROP only] (char) enum as expected by refprop.dll to determine the units to use        
 %                                             e.g., MKS, MASS BASE SI, etc.                                        
-%                                                                                                                  
+%
+% See REFPROP documentation (https://trc.nist.gov/refprop/REFPROP.PDF) and CoolProp documentation 
+% (http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values 
+% for requested and input properties.
+%
 % EXAMPLES for REFPROP:                                                                                                 
 %    libLoc = 'C:\Program Files (x86)\REFPROP\';                                                                   
 %                                                                                                                  

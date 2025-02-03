@@ -13,11 +13,11 @@
  *    value1    = DOUBLE (array of size 1xM) of values related to the first character in spec  *
  *    value2    = DOUBLE (array of size 1xN) of values related to the second character in spec *
  *    fluid     = CHAR value accepted by REFPROP as 'hFld' values (for mulit-species,          *
- *                list P fluids separated by a semicolon (;), where 1 < P <= 20                *
+ *                list numSpec fluids separated by a semicolon (;), where 1 < numSpec <= 20    *
  *    iMass     = INT value to determine input units: 0 -> Molar, 1 -> Mass (sets iMass)       *
  *    z         = DOUBLE (array of size 1x20) of species fractions where the number of         *
- *                speciecs P matches the number of species listed in 'fluid' and               *
- *                1 < P <= 20                                                                  *
+ *                speciecs numSpec matches the number of species listed in 'fluid' and         *
+ *                1 < numSpec <= 20                                                            *
  *    unit_char = CHAR value to determine units to use (enum as expected by refprop.dll)       *
  *    path      = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)        *
  *    DebugOut  = DOUBLE value (0 to suppress, 1 to show) debug output in MATLAB console       *

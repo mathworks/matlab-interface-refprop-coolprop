@@ -13,9 +13,9 @@
 %       spec    = CHAR value accepted by REFPROP as 'hIn'  values                         
 %       Value1  = DOUBLE (array of size 1xM or scalar) of values related to the first character in spec                                                       
 %       Value2  = DOUBLE (array of size 1XN or scalar) of values related to the second character in spec                                                       
-%       fluid   = CHAR value accepted by REFPROP as 'hFld' values for multi-species, list species 1 to P 
-%                      (where P is specified by the Composition variable) separated by semicolons (;)                                             
-%  Composition  = DOUBLE (array of size 1xP or scalar) of species fractions where (1 < P <= 20) and values must sum to 1                                  
+%       Fluid   = CHAR value accepted by CoolProp as fluid values for multi-species, list species 1 to numSpec 
+%                      (where numSpec is specified by the Composition variable) separated by semicolons (;)                                             
+%  Composition  = DOUBLE (1xnumSpec array) of species fractions where (1 < numSpec <= 20) and values must sum to 1                                  
 %  MassOrMolar  = INT value to determine input composition units: 0 -> Molar, 1 -> Mass   
 %  DesiredUnits = CHAR value to determine units to use (enum as expected by refprop.dll)  
 %  Path2Refprop = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)   
