@@ -159,6 +159,6 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         requestedPropertyValue = MLCoolProp(requestedProperty, inputProperty1, inputProperty1Value,...
                                                                inputProperty2, inputProperty2Value,...
-                                                               fluid, fluidComposition);
+                                                               fluid, fluidComposition, libraryLocation);
     end % end if REFPROP, else CoolProp
 end % end function getFluidProperty
