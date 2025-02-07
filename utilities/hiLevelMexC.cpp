@@ -23,6 +23,8 @@
  *    DebugOut  = DOUBLE value (0 to suppress, 1 to show) debug output in MATLAB console       *
  *=============================================================================================*/
 
+// Copyright 2019 - 2025 The MathWorks, Inc.
+
 #define REFPROP_IMPLEMENTATION
 #define REFPROP_FUNCTION_MODIFIER
 #undef UNICODE
