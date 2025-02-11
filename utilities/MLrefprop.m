@@ -62,6 +62,8 @@
 %                                                                                         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Copyright 2019 - 2025 The MathWorks, Inc.
+
 % History:
 %
 % Rev 7: Use arguements to ensure the correct data type is coming through 
