@@ -1,3 +1,6 @@
+
+% Copyright 2019 - 2025 The MathWorks, Inc.
+
 origLoc = cd("utilities\");
 
 try
