@@ -1,4 +1,11 @@
 origLoc = cd("utilities\");
-mex hiLevelMexC.cpp
+
+try
+    mex hiLevelMexC.cpp
+catch ME
+    cd(origLoc);
+    clear origLoc;
+    error(ME.message);
+end
 cd(origLoc);
 clear origLoc;

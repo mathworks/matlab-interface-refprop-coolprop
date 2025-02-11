@@ -17,7 +17,7 @@ For the functions in this repository to work properly, the user must have the fo
 
 1. MATLAB - we recommend the latest release of MATLAB, but it should work for R2020a or later, and it may work in even older releases.
 2. REFPROP version [10.x](https://www.nist.gov/srd/refprop)
-3. CoolProp version [6.6.0] (http://www.coolprop.org/coolprop/wrappers/Installers/index.html)
+3. CoolProp version [6.6.0](http://www.coolprop.org/coolprop/wrappers/Installers/index.html) (This will likely be installed in C:\users\<userName>\AppData\Roaming\CoolProp)
 4. A C/C++ compiler - [Current MATLAB Release compiler support](https://www.mathworks.com/support/requirements/supported-compilers.html) [Previous MATLAB Releases compiler support](https://www.mathworks.com/support/requirements/previous-releases.html)
 
 ## Repository Contents
@@ -33,7 +33,7 @@ This repository contains the following directories and files.
     3. REFPROP_lib.h - this file is required by hiLIevelMexC.cpp in order to interface with REFPROP.
     4. MLCoolProp.m - this file is the MATLAB script which is called by getfluidProperties.m to interface with CoolProp. It uses calllib rather than mex to interface with the CoolProp library.
 4. createREFPROPmex.m - this file should be run by the user the first time they want to use REFPROP. This script will create the mexw64 executable from the hiLevelMexC.cpp file.
-5. getFluidProper.m - this function is the user interface to REFPROP or CoolProp.
+5. getFluidProperty.m - this function is the user interface to REFPROP or CoolProp.
 6. MATLABInterfaceREFPROPCoolProp.prj - this file is the MATLAB project file which sets all the necessary paths and provides the user git interface through MATLAB.
 
 ## For REFPROP Users - one-time setup
@@ -60,7 +60,7 @@ The inputs to getFluidProperty are:
 5. inputProperty2 - (string) name of the 2nd property used as the state point
 6. inputProperty2Value - (double) 1xN array of values of the 2nd property used as the state point in the library's expected units 
 7. fluid - (string) indicating the fluid for which the requested property should be calculated e.g., 
-    1. Use standard fluids alreayd available in the library: "Water", "Ethanol", etc.  
+    1. Use standard fluids already available in the library: "Water", "Ethanol", etc.  
     2. User defined fluids: "Nitrogen;Oxygen;Hydrogen;Water"
 
         _**NOTE: if the user defines their own fluid, the species should be listed out as in the last example above using only a semicolon (;\) to separate the species**_
@@ -113,7 +113,7 @@ h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Oxygen;Nitrogen',
 
 Output is given as a 1x1 array: h1 = 295.6969
 
-**Get sepcific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol:**
+**Get specific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol:**
 
 h1 = getFluidProperty(libLoc, 'H', 'T', [293.15, 400.00, 542.0], 'P', [101.325, 104.1], 'Nitrogen;Oxygen;Hydrogen;Water', [0.71, 0.16, 0.1, 0.03], 1, 'MKS')
 
@@ -167,7 +167,7 @@ h1 = getFluidProperty(libLoc, 'Hmolar', 'T', 293.15, 'P', 101325, 'Nitrogen;Oxyg
 
 Output is given as a 1x1 array: h1 = 9374.9875
 
-**Get sepcific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol:**
+**Get specific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol:**
 
 h1 = getFluidProperty(libLoc, 'Hmolar', 'T', [293.15, 300.00, 310.0], 'P', [101325, 104100], 'Nitrogen;Oxygen;Hydrogen;Water', [0.71, 0.16, 0.1, 0.03])
 

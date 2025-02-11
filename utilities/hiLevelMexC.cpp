@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <math.h>
 #include "mex.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -305,15 +306,8 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
             REFPROPdll(hFld, hIn, hOut, iUnits, iMass, mixFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
             if(ierr != 0)
             {
-                mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "1 Refprop call failed: Error %s -> %d %s", unit_char, ierr, herr);
-                
-                bool unloaded_REFPROP = unload_REFPROP(serr);
-                if (!unloaded_REFPROP)
-                {
-                  printf("REFPROP failed to unload properly.");
-                } // if REFPROP failed to unload
-
-                return;
+                mexWarnMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "1 Refprop call failed: WARNING %s -> %d %s", unit_char, ierr, herr);
+                hOutput[0] = NAN;
             }
 
             propReqOut[(numelVal1 * itc) + itr] = hOutput[0];
@@ -365,22 +359,15 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
                 REFPROPdll(hFld, hIn, hOut, iUnits, iMass, mixFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
                 if(ierr != 0)
                 {
-                    mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "2 Refprop call failed: Error %s -> %d %s", unit_char, ierr, herr);
-                    
-                    bool unloaded_REFPROP = unload_REFPROP(serr);
-                    if (!unloaded_REFPROP)
-                    {
-                      printf("REFPROP failed to unload properly.");
-                    } // if REFPROP failed to unload
-
-                    return;
+                    mexWarnMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "2 Refprop call failed: WARNING %s -> %d %s", unit_char, ierr, herr);
+                    hOutput[0] = NAN;
                 }
 
                 /////////////////////////////////
                 // Fill in the output variable //
                 /////////////////////////////////
                 propReqOut[(numelVal1 * itc) + itr] = hOutput[0];
-                
+
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 // Print out to screen, mostly this is for debugging purposes and can be removed or condensed later //
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -432,15 +419,8 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
                     REFPROPdll(hFld, hIn, hOut, iUnits, iMass, mixFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
                     if(ierr != 0)
                     {
-                        mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "3 Refprop call failed: Error %s -> %d %s", unit_char, ierr, herr);
-                        
-                        bool unloaded_REFPROP = unload_REFPROP(serr);
-                        if (!unloaded_REFPROP)
-                        {
-                          printf("REFPROP failed to unload properly.");
-                        } // if REFPROP failed to unload
-                        
-                        return;
+                        mexWarnMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "3 Refprop call failed: WARNING %s -> %d %s", unit_char, ierr, herr);
+                        hOutput[0] = NAN;
                     }
 
                     /////////////////////////////////
