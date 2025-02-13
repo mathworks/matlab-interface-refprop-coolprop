@@ -1,4 +1,4 @@
-# MATLAB interface to REFPROP and CoolProp
+# MATLAB&reg; interface to REFPROP and CoolProp
 
 ## Name
 MATLAB interface to REFPROP and CoolProp
@@ -13,7 +13,7 @@ This repository contains a single MATLAB interface to extract the properties of 
 ## System Requirements
 
 For the functions in this repository to work properly, the user must have the following installed on their computer:
-**_NOTE: The user only needs only REFPROP or CoolProp. Both are unnecessary._**
+**_NOTE: The user only needs either REFPROP or CoolProp. It is not necessary to install both programs._**
 
 1. MATLAB - we recommend the latest release of MATLAB, but it should work for R2020a or later, and it may work in even older releases.
 2. REFPROP version [10.x](https://www.nist.gov/srd/refprop)
