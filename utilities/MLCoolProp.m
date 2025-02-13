@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MLCoolProp                                                                              
-%   From MATLAB:                                                                          
+%   From MATLAB(R):                                                                          
 %        output = MLCoolProp(outputVars, Input1, Input1Val, Input2, Input2Val, Fluid, FluidComposition,...
 %                            CoolPropDLLpath, libMethod)                
 %                                                                                         

@@ -2,7 +2,7 @@
  *  hiLevelMexC.cpp - function written with MEX C api (rather than C++)                        *
  *                    but since REFPROP requires C++, the file is C++.                         *
  *                                                                                             *
- *  From MATLAB:                                                                               *
+ *  From MATLAB(R):                                                                               *
  *       output = hiLevelMexC(propReq, spec, Value1, Value2, fluid, MassOrMole)                *
  *                                                                                             *
  *  Where (see: https://refprop-docs.readthedocs.io/en/latest/DLL/high_level.html)             *
