@@ -88,7 +88,7 @@ function outVals = MLCoolProp(outputVars, Input1, Input1Val, Input2, Input2Val, 
     else
         cpDir = struct2table(dir(CoolPropDLLpath));
         if ~any(strcmp(cpDir.name, "CoolPropLib.h"))
-            error(Path2CoolProp + " does not contain ""CoolPropLib.h"". Please specify the path to your CoolProp installation.")
+            error(CoolPropDLLpath + " does not contain ""CoolPropLib.h"". Please specify the path to your CoolProp installation.")
         end % end if the directory does not contain CoolProp.EXE
     end % end if not, else, CoolProp directory exists
   
