@@ -1,10 +1,11 @@
 
 % Copyright 2019 - 2025 The MathWorks, Inc.
 
-origLoc = cd("utilities\");
+origLoc = cd("internal\");
 
 try
-    mex hiLevelMexC.cpp
+    includePath = ['-I' fullfile(pwd, 'include')];
+    mex('hiLevelMexC.cpp', includePath);
 catch ME
     cd(origLoc);
     clear origLoc;
