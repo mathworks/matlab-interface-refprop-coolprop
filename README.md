@@ -1,7 +1,7 @@
-# MATLAB&reg; interface to REFPROP and CoolProp
+# MATLAB interface to REFPROP and CoolProp
 
 ## Name
-MATLAB interface to REFPROP and CoolProp
+MATLAB&reg; interface to REFPROP and CoolProp
 
 ## Description
 REFPROP is a fluids property program that calcuates thermodynamic and transport properties, which is created and maintained by NIST.
@@ -174,3 +174,5 @@ h1 = getFluidProperty(libLoc, 'Hmolar', 'T', [293.15, 300.00, 310.0], 'P', [1013
 Output is given as a 3x2 array: h1 = [ 9374.9875,  9343.7779;
                                        9762.2208,  9762.0559;
                                       10055.4953, 10055.3424]
+
+Copyright 2025 The MathWorks, Inc.
