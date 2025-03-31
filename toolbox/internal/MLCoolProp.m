@@ -69,14 +69,14 @@
 function outVals = MLCoolProp(outputVars, Input1, Input1Val, Input2, Input2Val, Fluid, FluidComposition,...
                               CoolPropDLLpath, libMethod)
     arguments
-        outputVars       (1, :) string = "Hmass";
-        Input1           (1, :) char   = "P";
-        Input1Val        (1, :) double = 101325; % Pa
-        Input2           (1, :) char   = "T";
-        Input2Val        (1, :) double = 300; % K
-        Fluid            (1, :) string = "Nitrogen;Oxygen;Hydrogen;Water";
-        FluidComposition (1, :) double = [0.71, 0.16, 0.1, 0.03];
-        CoolPropDLLpath  (1, :) char   = 'C:\Program Files\CoolProp\';
+        outputVars       (1, :) string
+        Input1           (1, :) char
+        Input1Val        (1, :) double
+        Input2           (1, :) char
+        Input2Val        (1, :) double
+        Fluid            (1, :) string
+        FluidComposition (1, :) double
+        CoolPropDLLpath  (1, :) char
         libMethod        (1, :) char   = 'PropsSI';
     end
 
@@ -124,7 +124,7 @@ function outVals = MLCoolProp(outputVars, Input1, Input1Val, Input2, Input2Val, 
         if (numel(Fluid) ~= numel(FluidComposition))
             error(   "Fluid must have the same number of elements as the specified composition. "...
                    + "Currently, you have specified " + num2str(numel(Fluid)) + " Fluids: " + strjoin(Fluid, ", ")...
-                   + " and " + num2str(numel(FluidComposition)) + " compositions: " + string(FluidComposition));
+                   + " and " + num2str(numel(FluidComposition)) + " compositions: " + strjoin(FluidComposition, ", "));
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

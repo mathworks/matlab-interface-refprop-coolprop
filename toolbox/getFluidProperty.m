@@ -121,14 +121,14 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
                                                    inputProperty2, inputProperty2Value, fluid,...
                                                    fluidComposition, massOrMolar, desiredUnits)
     arguments
-        libraryLocation     (1, :) {mustBeText} = "C:\Program Files (x86)\REFPROP"; %'C:\Program Files\CoolProp\';
-        requestedProperty   (1, :) {mustBeText} = "H";
-        inputProperty1      (1, :) {mustBeText} = "P";
-        inputProperty1Value (1, :) double       = 101.325; % kPa (REFPROP uses kPa, CoolProp uses Pa!)
-        inputProperty2      (1, :) {mustBeText} = "T";
-        inputProperty2Value (1, :) double       = 300; % K
-        fluid               (1, :) string       = "Nitrogen;Oxygen;Hydrogen;Water";
-        fluidComposition    (1, :) double       = [0.71, 0.16, 0.1, 0.03];
+        libraryLocation     (1, :) {mustBeText}
+        requestedProperty   (1, :) {mustBeText}
+        inputProperty1      (1, :) {mustBeText}
+        inputProperty1Value (1, :) double
+        inputProperty2      (1, :) {mustBeText}
+        inputProperty2Value (1, :) double
+        fluid               (1, :) string
+        fluidComposition    (1, :) double       = 1; % assume single species - only if numel(fluid) > 1 will user need to provide
         massOrMolar         (1, 1) double       = 0;
         desiredUnits        (1, :) {mustBeText} = "MKS";
     end
