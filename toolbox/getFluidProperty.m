@@ -24,7 +24,14 @@
 %                                         fluidComposition = [0.71, 0.16, 0.1, 0.03]
 % massOrMolar         = [REFPROP only] (int) value to determine input composition units: 0 -> Molar, 1 -> Mass     
 % desiredUnits        = [REFPROP only] (char) enum as expected by refprop.dll to determine the units to use        
-%                                             e.g., MKS, MASS BASE SI, etc.                                        
+%                                             e.g., MKS, MASS BASE SI, etc.          
+% keepLibraryLoaded   = [CoolProp optional (name, value) pair] (logical) defaults to false -> load and unload CoolProp 
+%                                                                                             library with every 
+%                                                                                             funciton call
+%                                                                                    true -> keep library loaded for
+%                                                                                            multiple funciton calls
+%                       NOTE: user should unload the library when finished: in the MATLAB command line type
+%                                                                           unloadlibrary('CoolProp')
 %
 % See REFPROP documentation (https://trc.nist.gov/refprop/REFPROP.PDF) and CoolProp documentation 
 % (http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values 
@@ -110,6 +117,13 @@
 %    Get the minimum and maximum temperatures in K for a specific fluid - no inputs required
 %    Tmin_val = getFluidProperty(CoolProp_path,'Tmin', "", [], "", [], "Water", 1);
 %    Tmax_val = getFluidProperty(CoolProp_path,'Tmax', "", [], "", [], "Water", 1);
+%
+%    keep the CoolProp library loaded when making multiple calls - specify optional value keepLibraryLoaded as true
+%    T_min = getFluidProperty(coolPropLib,'Tmin', "", [], "", [], 'R410A', 1, keepLibraryLoaded=true);
+%    T_max = getFluidProperty(coolPropLib,'Tmax', "", [], "", [], 'R410A', 1, keepLibraryLoaded=true);
+%    h_min = getFluidProperty(coolPropLib,'H', 'T', T_min, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
+%    h_max = getFluidProperty(coolPropLib,'H', 'T', T_max, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Copyright 2019 - 2025 The MathWorks, Inc.

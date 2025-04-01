@@ -16,9 +16,17 @@ classdef MLCoolProp < handle
     %    Input2Val  = DOUBLE (array of size 1xN or scalar) of values related to the second input property
     %       Fluid   = CHAR value accepted by CoolProp as fluid values for multi-species, list species 1 to numSpec
     %                      (where numSpec is specified by the Composition variable) separated by semicolons (;)
-    %  FluidComposition = DOUBLE (1xnumSpec array) of species fractions where (1 < numSpec <= 20), values must sum to 1
-    %  CoolPropDLLpath = CHAR path to CoolProp directory with the DLL (e.g. C:\\ProgramFiles (x86)\CoolProp)
-    %  libMethod    = CHAR with the CoolProp library method to call - almost always it should be PropsSI
+    %  FluidComposition  = DOUBLE (1xnumSpec array) of species fractions where (1 < numSpec <= 20), values must sum to 1
+    %  CoolPropDLLpath   = CHAR path to CoolProp directory with the DLL (e.g. C:\\ProgramFiles (x86)\CoolProp)
+    %  libMethod         = CHAR with the CoolProp library method to call - almost always it should be PropsSI
+    %  keepLibraryLoaded = [CoolProp optional (name, value) pair] (logical) defaults to false -> load and unload
+    %                                                                                             CoolProp library with 
+    %                                                                                             every funciton call
+    %                                                                                    true -> keep library loaded for
+    %                                                                                            multiple funciton calls
+    %                       NOTE: user should unload the library when finished: in the MATLAB command line type
+    %                                                                           unloadlibrary('CoolProp')
+    %
     %
     %  Examples:
     %    dllPath = 'C:\Program Files (x86)\CoolProp\';
@@ -57,6 +65,17 @@ classdef MLCoolProp < handle
     %    Output is given as a 3x2 array: h1 = [ 9374.9875,  9343.7779;
     %                                           9762.2208,  9762.0559;
     %                                          10055.4953, 10055.3424]
+    %
+    %    Get the minimum and maximum temperatures in K for a specific fluid - no inputs required
+    %    Tmin_val = getFluidProperty(CoolProp_path,'Tmin', "", [], "", [], "Water", 1);
+    %    Tmax_val = getFluidProperty(CoolProp_path,'Tmax', "", [], "", [], "Water", 1);
+    %
+    %    keep the CoolProp library loaded when making multiple calls - specify optional value keepLibraryLoaded as true
+    %    T_min = getFluidProperty(coolPropLib,'Tmin', "", [], "", [], 'R410A', 1, keepLibraryLoaded=true);
+    %    T_max = getFluidProperty(coolPropLib,'Tmax', "", [], "", [], 'R410A', 1, keepLibraryLoaded=true);
+    %    h_min = getFluidProperty(coolPropLib,'H', 'T', T_min, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
+    %    h_max = getFluidProperty(coolPropLib,'H', 'T', T_max, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
+    %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % Copyright 2019 - 2025 The MathWorks, Inc.
