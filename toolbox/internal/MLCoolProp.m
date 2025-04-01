@@ -69,7 +69,7 @@
 function outVals = MLCoolProp(outputVars, Input1, Input1Val, Input2, Input2Val, Fluid, FluidComposition,...
                               CoolPropDLLpath, libMethod)
     arguments
-        outputVars       (1, :) string
+        outputVars       (1, :) char
         Input1           (1, :) char
         Input1Val        (1, :) double
         Input2           (1, :) char
@@ -162,6 +162,10 @@ function outVals = MLCoolProp(outputVars, Input1, Input1Val, Input2, Input2Val, 
     %%%%%%%%%%%%%%%%%%%%%%%%%
     inputPair = [Input1, ';', Input2];
 
+    if strcmp(inputPair, ";")
+        libMethod = 'Props1SI';
+    end
+
     if strcmp(libMethod, 'PropsSI')
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % loop through the two input values %
@@ -175,6 +179,8 @@ function outVals = MLCoolProp(outputVars, Input1, Input1Val, Input2, Input2Val, 
                                                      input2=Input2Val(ix2), Species=Fluid);
             end % end loop over input property 2 values (ix2)
         end % end loop over input property 1 values (ix1)
+    elseif strcmp(libMethod, 'Props1SI')
+        outVals = getCoolPropValue(libMethod, outputVars, Species=Fluid);
     else
         error("Time to figure this out!")
         % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
