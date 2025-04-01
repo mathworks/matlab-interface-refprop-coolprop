@@ -123,18 +123,20 @@
 function requestedPropertyValue = getFluidProperty(libraryLocation, requestedProperty,... 
                                                    inputProperty1, inputProperty1Value,...
                                                    inputProperty2, inputProperty2Value, fluid,...
-                                                   fluidComposition, massOrMolar, desiredUnits)
+                                                   fluidComposition, massOrMolar, desiredUnits,...
+                                                   opts)
     arguments
-        libraryLocation     (1, :) {mustBeText}
-        requestedProperty   (1, :) {mustBeText}
-        inputProperty1      (1, :) {mustBeText}
-        inputProperty1Value (1, :) double
-        inputProperty2      (1, :) {mustBeText}
-        inputProperty2Value (1, :) double
-        fluid               (1, :) string
-        fluidComposition    (1, :) double       = 1; % assume single species - only if numel(fluid) > 1 will user need to provide
-        massOrMolar         (1, 1) double       = 0;
-        desiredUnits        (1, :) {mustBeText} = "MKS";
+        libraryLocation        (1, :) {mustBeText}
+        requestedProperty      (1, :) {mustBeText}
+        inputProperty1         (1, :) {mustBeText}
+        inputProperty1Value    (1, :) double
+        inputProperty2         (1, :) {mustBeText}
+        inputProperty2Value    (1, :) double
+        fluid                  (1, :) string
+        fluidComposition       (1, :) double       = 1; % assume single species - only if numel(fluid) > 1 will user need to provide
+        massOrMolar            (1, 1) double       = 0;
+        desiredUnits           (1, :) {mustBeText} = "MKS";
+        opts.keepLibraryLoaded (1, 1) logical      = false;
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -163,8 +165,10 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         % shape the output to match REFPROP when given input proprty value arrays, we shouldn't have to do %
         % anything else unless we want the user to be able to specify multiple output properties or fluids %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        requestedPropertyValue = MLCoolProp(requestedProperty, inputProperty1, inputProperty1Value,...
-                                                               inputProperty2, inputProperty2Value,...
-                                                               fluid, fluidComposition, libraryLocation);
+        cpObj = MLCoolProp(libraryLocation, opts.keepLibraryLoaded);
+
+        requestedPropertyValue = cpObj.getCoolPropValues(requestedProperty, inputProperty1, inputProperty1Value,...
+                                                         inputProperty2, inputProperty2Value, fluid, fluidComposition);
+
     end % end if REFPROP, else CoolProp
 end % end function getFluidProperty
