@@ -106,6 +106,10 @@
 %    Output is given as a 3x2 array: h1 = [ 9374.9875,  9343.7779;                                                 
 %                                           9762.2208,  9762.0559;                                                 
 %                                          10055.4953, 10055.3424]                                                 
+%
+%    Get the minimum and maximum temperatures in K for a specific fluid - no inputs required
+%    Tmin_val = getFluidProperty(CoolProp_path,'Tmin', "", [], "", [], "Water", 1);
+%    Tmax_val = getFluidProperty(CoolProp_path,'Tmax', "", [], "", [], "Water", 1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Copyright 2019 - 2025 The MathWorks, Inc.
