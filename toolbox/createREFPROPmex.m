@@ -1,7 +1,7 @@
 
 % Copyright 2019 - 2025 The MathWorks, Inc.
 
-origLoc = cd("internal\");
+origLoc = cd(fullfile('toolbox', 'internal'));
 
 try
     includePath = ['-I' fullfile(pwd, 'include')];

@@ -24,7 +24,14 @@
 %                                         fluidComposition = [0.71, 0.16, 0.1, 0.03]
 % massOrMolar         = [REFPROP only] (int) value to determine input composition units: 0 -> Molar, 1 -> Mass     
 % desiredUnits        = [REFPROP only] (char) enum as expected by refprop.dll to determine the units to use        
-%                                             e.g., MKS, MASS BASE SI, etc.                                        
+%                                             e.g., MKS, MASS BASE SI, etc.          
+% keepLibraryLoaded   = [CoolProp optional (name, value) pair] (logical) defaults to false -> load and unload CoolProp 
+%                                                                                             library with every 
+%                                                                                             funciton call
+%                                                                                    true -> keep library loaded for
+%                                                                                            multiple funciton calls
+%                       NOTE: user should unload the library when finished: in the MATLAB command line type
+%                                                                           unloadlibrary('CoolProp')
 %
 % See REFPROP documentation (https://trc.nist.gov/refprop/REFPROP.PDF) and CoolProp documentation 
 % (http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values 
@@ -106,6 +113,17 @@
 %    Output is given as a 3x2 array: h1 = [ 9374.9875,  9343.7779;                                                 
 %                                           9762.2208,  9762.0559;                                                 
 %                                          10055.4953, 10055.3424]                                                 
+%
+%    Get the minimum and maximum temperatures in K for a specific fluid - no inputs required
+%    Tmin_val = getFluidProperty(CoolProp_path,'Tmin', "", [], "", [], "Water", 1);
+%    Tmax_val = getFluidProperty(CoolProp_path,'Tmax', "", [], "", [], "Water", 1);
+%
+%    keep the CoolProp library loaded when making multiple calls - specify optional value keepLibraryLoaded as true
+%    T_min = getFluidProperty(coolPropLib,'Tmin', "", [], "", [], 'R410A', 1, keepLibraryLoaded=true);
+%    T_max = getFluidProperty(coolPropLib,'Tmax', "", [], "", [], 'R410A', 1, keepLibraryLoaded=true);
+%    h_min = getFluidProperty(coolPropLib,'H', 'T', T_min, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
+%    h_max = getFluidProperty(coolPropLib,'H', 'T', T_max, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Copyright 2019 - 2025 The MathWorks, Inc.
@@ -119,18 +137,20 @@
 function requestedPropertyValue = getFluidProperty(libraryLocation, requestedProperty,... 
                                                    inputProperty1, inputProperty1Value,...
                                                    inputProperty2, inputProperty2Value, fluid,...
-                                                   fluidComposition, massOrMolar, desiredUnits)
+                                                   fluidComposition, massOrMolar, desiredUnits,...
+                                                   opts)
     arguments
-        libraryLocation     (1, :) {mustBeText}
-        requestedProperty   (1, :) {mustBeText}
-        inputProperty1      (1, :) {mustBeText}
-        inputProperty1Value (1, :) double
-        inputProperty2      (1, :) {mustBeText}
-        inputProperty2Value (1, :) double
-        fluid               (1, :) string
-        fluidComposition    (1, :) double       = 1; % assume single species - only if numel(fluid) > 1 will user need to provide
-        massOrMolar         (1, 1) double       = 0;
-        desiredUnits        (1, :) {mustBeText} = "MKS";
+        libraryLocation        (1, :) {mustBeText}
+        requestedProperty      (1, :) {mustBeText}
+        inputProperty1         (1, :) {mustBeText}
+        inputProperty1Value    (1, :) double
+        inputProperty2         (1, :) {mustBeText}
+        inputProperty2Value    (1, :) double
+        fluid                  (1, :) string
+        fluidComposition       (1, :) double       = 1; % assume single species - only if numel(fluid) > 1 will user need to provide
+        massOrMolar            (1, 1) double       = 0;
+        desiredUnits           (1, :) {mustBeText} = "MKS";
+        opts.keepLibraryLoaded (1, 1) logical      = false;
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,8 +179,10 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         % shape the output to match REFPROP when given input proprty value arrays, we shouldn't have to do %
         % anything else unless we want the user to be able to specify multiple output properties or fluids %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        requestedPropertyValue = MLCoolProp(requestedProperty, inputProperty1, inputProperty1Value,...
-                                                               inputProperty2, inputProperty2Value,...
-                                                               fluid, fluidComposition, libraryLocation);
+        cpObj = MLCoolProp(libraryLocation, opts.keepLibraryLoaded);
+
+        requestedPropertyValue = cpObj.getCoolPropValues(requestedProperty, inputProperty1, inputProperty1Value,...
+                                                         inputProperty2, inputProperty2Value, fluid, fluidComposition);
+
     end % end if REFPROP, else CoolProp
 end % end function getFluidProperty
