@@ -1,3 +1,5 @@
+% Copyright 2025 The MathWorks, Inc.
+
 function [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_min, H_max, P_unit, H_unit, T_unit)
 % Plot PH & TS Diagrams in custom units
 

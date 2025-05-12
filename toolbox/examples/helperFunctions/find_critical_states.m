@@ -1,3 +1,5 @@
+% Copyright 2025 The MathWorks, Inc.
+
 function [p_critical, h_critical, t_critical, s_critical] = find_critical_states(fluid, libLoc)
 % Return p,h,T,s at critical point
 

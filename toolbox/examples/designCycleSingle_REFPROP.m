@@ -1,3 +1,5 @@
+% Copyright 2025 The MathWorks, Inc.
+
 %% Design a Single-Stage Refrigeration Cycle
 % and plot the Pressure-Enthalpy (PH) & Temperature-Entropy (TS) diagrams
 

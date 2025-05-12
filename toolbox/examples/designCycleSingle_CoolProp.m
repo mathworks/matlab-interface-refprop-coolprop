@@ -1,9 +1,12 @@
+% Copyright 2025 The MathWorks, Inc.
+
 %% Design a Single-Stage Refrigeration Cycle
 % and plot the Pressure-Enthalpy (PH) & Temperature-Entropy (TS) diagrams
 
 %% Choose Library, Fluid, P & H Ranges
 % Set up Library and Units
-libLoc = 'C:\Program Files\CoolProp\'; % Location for CoolProp might be: 'C:\Users\<userName>\AppData\Roaming\CoolProp';
+userName = 'kmcgarri';
+libLoc   = ['C:\Users\' userName '\AppData\Roaming\CoolProp']; % default CoolProp install location
 
 % default: 0.01-6 MPa, 100-500 kJ/kg, R134a.
 % English: 1.5-950 psi, 40-220 Btu/lbm
