@@ -17,7 +17,7 @@ For the functions in this repository to work properly, the user must have the fo
 
 1. MATLAB - we recommend the latest release of MATLAB, but it should work for R2020a or later, and it may work in even older releases.
 2. REFPROP version [10.x](https://www.nist.gov/srd/refprop)
-3. CoolProp version [6.6.0](http://www.coolprop.org/coolprop/wrappers/Installers/index.html) (This will likely be installed in C:\users\\<userName>\AppData\Roaming\CoolProp)
+3. CoolProp version [6.6.0](http://www.coolprop.org/coolprop/wrappers/Installers/index.html) (This will likely be installed in C:\users\\\<userName>\AppData\Roaming\CoolProp)
 4. A C/C++ compiler - [Current MATLAB Release compiler support](https://www.mathworks.com/support/requirements/supported-compilers.html) [Previous MATLAB Releases compiler support](https://www.mathworks.com/support/requirements/previous-releases.html)
 
 ## Repository Contents
