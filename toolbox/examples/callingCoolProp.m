@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set location of CoolProp library installation %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-libLoc = 'C:\Program Files\CoolProp\';
+libLoc = 'C:\Program Files\CoolProp\'; % or possibly 'C:\Users\<userName>\AppData\Roaming\CoolProp';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Get the specific enthalpy of water at STP in J/mol: %
