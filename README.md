@@ -78,11 +78,13 @@ requestedPropertyValue = (double) (MxN) array of values for the requested thermo
 ### Examples for REFPROP
 
 [Calling REFPROP](https://github.com/mathworks/matlab-interface-refprop-coolprop/blob/main/toolbox/examples/callingREFPROP.m)
+
 [Design Cycle REFPROP](https://github.com/mathworks/matlab-interface-refprop-coolprop/blob/main/toolbox/examples/designCycleSingle_REFPROP.m)
 
 ### Examples for CoolProp
 
 [Calling CoolProp](https://github.com/mathworks/matlab-interface-refprop-coolprop/blob/main/toolbox/examples/callingCoolProp.m)
+
 [Design Cycle CoolProp](https://github.com/mathworks/matlab-interface-refprop-coolprop/blob/main/toolbox/examples/designCycleSingle_CoolProp.m)
 
 Copyright 2025 The MathWorks, Inc.
