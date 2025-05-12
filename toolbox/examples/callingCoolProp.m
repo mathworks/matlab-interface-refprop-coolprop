@@ -96,7 +96,6 @@ for ix = 1:10
     h_max = getFluidProperty(libLoc,'H', 'T', T_max, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
 end
 t2 = toc;
-unloadlibrary('CoolProp')
 
 disp("Time to query 40 individual values while keeping the library loaded:")
 disp(num2str(t2) + " seconds")
@@ -111,3 +110,5 @@ disp("h_max = " + num2str(h_max));
 % T_max = 500
 % h_min = 97296.6733
 % h_max = 650989.485
+
+unloadlibrary('CoolProp')
