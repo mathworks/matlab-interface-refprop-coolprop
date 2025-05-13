@@ -8,6 +8,9 @@
 userName = 'kmcgarri';
 libLoc   = ['C:\Users\' userName '\AppData\Roaming\CoolProp']; % default CoolProp install location
 
+% show contour labels on final TS and PH plots
+showContourLabels = false;
+
 % default: 0.01-6 MPa, 100-500 kJ/kg, R134a.
 % English: 1.5-950 psi, 40-220 Btu/lbm
 Fluid   = "R134a";
@@ -31,7 +34,7 @@ eta_s      = 0.6; % viscosity of saturation
 %% Plot PH & TS Diagrams
 
 % Plot PH & TS Diagrams in custom units
-[hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_min, H_max, P_unit, H_unit, T_unit);
+[hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_min, H_max, P_unit, H_unit, T_unit, showContourLabels);
 
 % Use light mode for PH & TS diagrams. Doesn't look good in dark mode.
 if ~isMATLABReleaseOlderThan("R2025a")

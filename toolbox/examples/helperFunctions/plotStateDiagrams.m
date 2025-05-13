@@ -1,6 +1,6 @@
 % Copyright 2025 The MathWorks, Inc.
 
-function [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_min, H_max, P_unit, H_unit, T_unit)
+function [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_min, H_max, P_unit, H_unit, T_unit, showContourLabels)
 % Plot PH & TS Diagrams in custom units
 
 % libLoc = 'C:\Program Files (x86)\REFPROP 10.0\';
@@ -13,6 +13,12 @@ function [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_m
 % P_unit  = "Pa";
 % H_unit  = "J/kg";
 % T_unit  = "K";
+
+if showContourLabels == true
+    showText = 'on';
+else
+    showText = 'off';
+end
 
 %% Critical Point
     [P_crit, H_crit, T_crit, S_crit] = find_critical_states(Fluid, libLoc);
@@ -120,7 +126,7 @@ function [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_m
     box on; 
     hold on;
     set(gcf, 'Visible', 'on')
-    [~, c] = contour(H_grid, P_grid, T_contr');
+    [~, c] = contour(H_grid, P_grid, T_contr', 'ShowText', showText);
 
     Tmin = round(min(T_contr, [], "all"), -1);
     Tmax = round(max(T_contr, [], "all"), -1);
@@ -137,7 +143,7 @@ function [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_m
     xlabel("Specific Enthalpy (" + H_unit + ")")
     ylabel("Pressure (" + P_unit + ")")
     title("PH Diagram (" + Fluid + ")")
-    legend("Iso-Temperature Contour", Location="northwest")
+    legend("Iso-Temperature Contour (" + T_unit + ")" , Location="northwest")
 
 %% Plot TS Diagram
 
@@ -147,7 +153,7 @@ function [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_m
     box on; 
     hold on;
     set(gcf,'Visible','on')
-    [~, c] = contour(S_grid, T_grid, P_contr');
+    [~, c] = contour(S_grid, T_grid, P_contr', 'ShowText', showText);
 
     P_level = reshape([1, 2, 5]' * 10.^(-8:8), [], 1);
     c.LevelList = P_level;
@@ -163,5 +169,5 @@ function [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_m
     xlabel("Specific Entropy (" + H_unit + "/" + T_unit + ")")
     ylabel("Temperature (" + T_unit + ")")
     title("TS Diagram (" + Fluid + ")")
-    legend("Iso-Pressure Contour", Location="northwest")
+    legend("Iso-Pressure Contour (" + P_unit + ")", Location="northwest")
 end % end plotStateDiagrams
