@@ -111,4 +111,7 @@ disp("h_max = " + num2str(h_max));
 % h_min = 97296.6733
 % h_max = 650989.485
 
+%%%%%%%%%%%%%%%%%%%%%%
+% unload the library %
+%%%%%%%%%%%%%%%%%%%%%%
 unloadlibrary('CoolProp')

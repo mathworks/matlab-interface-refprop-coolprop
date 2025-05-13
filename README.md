@@ -24,17 +24,28 @@ For the functions in this repository to work properly, the user must have the fo
 
 This repository contains the following directories and files.
 
-1. documents directory - this directory is intended for any documentation created around this interface
-    1. RequirementsDoc.docx - this file contains a rough outline of the requirements used to create the MATLAB interface for REFPROP and CoolProp.
-2. resources directory - this directory is connected to the MATLAB project and should not be touched except through the MATLAB project file
-3. utlities directory - this directory contains all the files necessary to interface with REFPROP and CoolProp but should not be exposed to the user
-    1. hiLevelMexC.cpp - this file was originally part of the mlrefprop repository and interface to REFPROP. If the user wants to interface with REFPROP, they will need to create a mex file (instructions given below) from this.
-    2. MLrefprop.m - this file is the MATLAB script which is called by getFluidProperty.m and which calls the mex function to interface with REFPROP.
-    3. REFPROP_lib.h - this file is required by hiLIevelMexC.cpp in order to interface with REFPROP.
-    4. MLCoolProp.m - this file is the MATLAB script which is called by getfluidProperties.m to interface with CoolProp. It uses calllib rather than mex to interface with the CoolProp library.
-4. createREFPROPmex.m - this file should be run by the user the first time they want to use REFPROP. This script will create the mexw64 executable from the hiLevelMexC.cpp file.
-5. getFluidProperty.m - this function is the user interface to REFPROP or CoolProp.
-6. MATLABInterfaceREFPROPCoolProp.prj - this file is the MATLAB project file which sets all the necessary paths and provides the user git interface through MATLAB.
+1. toolbox directory - this directory contains all the files necessary to use the interface to call REFPROP or CoolProp
+    1. examples directory - this directory contains all the examples the user can refer to for how to use the interface
+        1. helperfunctions directory - this directory contains helper functions used in the desgin cycle examples
+        2. callingCoolProp.m - this script shows the various way the user can use the getFluidProperty function to call CoolProp and obtain desired fluid properties
+        3. callingREFPROP.m - this script shows the various way the user can use the getFluidProperty function to call REFPROP and obtain desired fluid properties
+        4. designCycleSingle_CoolProp.m - this script provides an example of creating TS and PH diagrams using CoolProp.
+        5. designCycleSingle_REFPROP.m - this script provides an example of creating TS and PH diagrams using REFPROP.
+    2. internal directory - this directory contains the necessary files for interfacing with REFPROP.
+        1. include directory - this directory contains the files as include files for interfacing with REFPROP.
+            1. Coolprop.rights - this is the license file for using CoolProp
+            2. REFPROP_lib.h - this is the header file required by hiLevelMexC.cpp to include to use REFPROP.
+        2. hiLevelMexC.cpp - this file is used through mex by MATLAB to interface with REFPROP.
+        3. MLCoolProp.m - this file defines the MLCoolProp class used by getFluidProperty.m to interface to CoolProp
+        4. MLrefprop.m this file defines the function used by MATLAB to interface with REFPROP
+    3. createREFPROPmex.m - this file defines the function the user should run the to create the mex file necessary to interface with REFPROP.
+    4. getFluidProperty.m - this file defines the interface the user will use to call REFPROP or CoolProp.
+2. .gitattributes - this file is an artifact of the git repo
+3. .gitignore - this file is an artifact of the git repo
+4. license.txt - this is the license file for using this MATLAB toolbox
+5. Matlabinterfacerefpropcoolprop.prj - this file is the MATLAB project file which sets all the necessary paths and provides the user git interface through MATLAB.
+6. README.md - this is the README file for the git repo
+7. SECURITY.md - this file provides information on reporting a security vulnerability discovered with this toolbox
 
 ## For REFPROP Users - one-time setup
 
@@ -62,15 +73,17 @@ The inputs to getFluidProperty are:
 7. fluid - (string) indicating the fluid for which the requested property should be calculated e.g., 
     1. Use standard fluids already available in the library: "Water", "Ethanol", etc.  
     2. User defined fluids: "Nitrogen;Oxygen;Hydrogen;Water"
-
         _**NOTE: if the user defines their own fluid, the species should be listed out as in the last example above using only a semicolon (;\) to separate the species**_
 8. fluidComposition - (double) array of size 1xP species fraction where 1 <= P <= 20, whose values must sum to 1, P must match the number of species in the fluid e.g., 
     1. if fluid = "Water", (numSpec = 1) and fluidComposition = 1;
     2. if fluid = "Nitrogen;Oxygen;Hydrogen;Water", (numSpec = 4) and fluidComposition = [0.71, 0.16, 0.1, 0.03]
 9. massOrMolar - [REFPROP only] (int) value to determine input composition units: 0 -> Molar, 1 -> Mass
 10. desiredUnits - [REFPROP only] (char) enum as expected by refprop.dll to determine the units to use e.g., MKS, MASS BASE SI, etc.
+11. keepLibraryLoaded - [CoolProp only] (boolean) this value should be provided as a (name, value) or name=value pair - defaults to false, which will cause the CoolProp library to load and unload with every call to getFluidProperty. Keep this at default unless it is necessary to make many function calls in the same task. If the user passes in an array of inputs to a single function call, the library will remain loaded. If the user needs to make a function call in a loop, it might be beneficial to set the value to true. This will keep the CoolProp library loaded between calls to getFluidProperty. It takes a couple secods to load and unload the library, and this will impact the runtime of the task. 
+_**Note: When keeping the library loaded, it is important for the user to remember to unload the library at the end of the task. See the CoolProp example scripts in example directory.**_
 
 See [REFPROP documentation](https://trc.nist.gov/refprop/REFPROP.PDF) and [CoolProp documentation](http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values for requested and input properties.
+
 ### Output
 
 requestedPropertyValue = (double) (MxN) array of values for the requested thermodynamic property as calculated by the library in the library's expected units where M is the number of values for the first input property and N is the number of values for the second input property.

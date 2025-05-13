@@ -104,3 +104,8 @@ plot(H_Design, P_Design, 'r-o', LineWidth=1.5, MarkerSize=5, DisplayName="Cycle 
 figure(hfig_TS); 
 hold on; % Hold on to the current figure
 plot(S_Design, T_Design, 'r-o', LineWidth=1.5, MarkerSize=5, DisplayName="Cycle Design") % Plot design cycle
+
+%%%%%%%%%%%%%%%%%%%%%%
+% unload the library %
+%%%%%%%%%%%%%%%%%%%%%%
+unloadlibrary('CoolProp')
