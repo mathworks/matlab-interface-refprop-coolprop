@@ -115,3 +115,21 @@ disp("h_max = " + num2str(h_max));
 % unload the library %
 %%%%%%%%%%%%%%%%%%%%%%
 unloadlibrary('CoolProp')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get Critical point of water - The output is the desired value,        %
+% first input is CRIT, second input is empty, input values don't matter %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tCrit = getFluidProperty(libLoc, "TCRIT", "", 1, "", 1, "Water", 1);
+disp("Critical Temperature = ")
+disp(tCrit);
+% Output is given as 1x1 array: tCrit = 647.0960
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get Triple point of water - The output is the desired value,          %
+% first input is TRIP, second input is empty, input values don't matter %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tTrip = getFluidProperty(libLoc, "TTRIPLE", "", 0, "", nan, "Water", 1);
+disp("Triple Point Temperature = ");
+disp(tTrip);
+% Output is given as 1x1 array: tTrip = 273.1600

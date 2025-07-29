@@ -67,3 +67,49 @@ h1 = getFluidProperty(libLoc, 'H', 'T', 300, 'P', 101.325, 'GLFCOAST.MIX', 1, 1,
 disp("h1 = ");
 disp(h1);
 % Output is given as a 1x1 array: h1 = 888684.3501
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get Critical point of water - The output is the desired value,        %
+% first input is CRIT, second input is empty, input values don't matter %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tCrit = getFluidProperty(libLoc, "T", "CRIT", 1, "", 1, "Water", 1, 1, "MKS");
+disp("Critical Temperature = ")
+disp(tCrit);
+% Output is given as 1x1 array: tCrit = 647.0960
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get Triple point of water - The output is the desired value,          %
+% first input is TRIP, second input is empty, input values don't matter %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tTrip = getFluidProperty(libLoc, "T", "TRIP", 0, "", nan, "Water", 1, 1, "MKS");
+disp("Triple Point Temperature = ");
+disp(tTrip);
+% Output is given as 1x1 array: tTrip = 273.1600
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get the melting point of water - The output is the desired value, %
+% the first input is the property value to find the melting value,  %
+% the second input is empty and its value doesn't matter            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+pMelt = getFluidProperty(libLoc, "P", "TMELT", 274, "", 328991, "Water", 1, 1, "MKS");
+disp("Melting pressure at 274K = ")
+disp(pMelt)
+% Output is given as 1x1 array: pMelt = 640329.17765911
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% To select a specific branch, use the special characters on the last input value %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sPH = getFluidProperty(libLoc, "S", "P", 300, "H", [100, 800], "Water", 1, 1, "MKS");
+disp("Entropy:")
+disp(sPH);
+% Ouptut is given as 1X2 array: sPH = [0.349994032961696, 2.25836610560853]
+
+sPH = getFluidProperty(libLoc, "S", "P", 300, "H<", [100, 800], "Water", 1, 1, "MKS");
+disp("Entropy:")
+disp(sPH);
+% Ouptut is given as 1X2 array: sPH = [0.349994052255697, 2.22177013280536]
+
+sPH = getFluidProperty(libLoc, "S", "P", 300, "H>", [100, 800], "Water", 1, 1, "MKS");
+disp("Entropy:")
+disp(sPH);
+% Ouptut is given as 1X2 array: sPH = [0.34999403295267, 2.221770408808]

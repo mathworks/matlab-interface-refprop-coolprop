@@ -160,7 +160,7 @@ classdef MLCoolProp < handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % ensure Fluid Composition sums to 1 %
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if ~isbetween(sum(FluidComposition), 0.99999999, 1.000000001)
+            if ((sum(FluidComposition) < 0.99999999) || (sum(FluidComposition) > 1.000000001))
                 error(   "Composition must contain positive values between 0 and 1, which sum to 1. "...
                        + "Currently, your composition [" + num2str(FluidComposition) + "] sums to " ...
                        + num2str(sum(FluidComposition)));
