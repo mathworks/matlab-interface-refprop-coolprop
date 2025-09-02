@@ -152,9 +152,9 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
         end % end if the directory does not contain REFPROP.EXE
     end % end if not, else, refprop directory exists
   
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Must have at least two characters %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Must have at least two characters for Spec %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if (size(Spec, 2) < 2) 
         error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
     elseif (size(Spec, 2) == 2)
@@ -220,11 +220,20 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
         error('Composition and Fluid cannot have more than 20 elements. Currently, your Composition and Fluid arrays contains %d elements.', nelCmp);
     end
     Composition = [Composition, zeros(1, (20 - nelCmp))];
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % get the number of requested properties %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if startsWith(PropReq, "[")
+        PropReq = strrep(strrep(PropReq, "["), "]");
+    end
+    numReqs = numel(strsplit(PropReq, ","));
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % call to the mex function that queries refprop %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     try
-      output = hiLevelMexC(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits, Path2Refprop, DebugOutput);
+        output = hiLevelMexC(PropReq, numReqs, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits, Path2Refprop, DebugOutput);
     catch ME
         %%%%%%%%%%%%%%%%%%%%%%%%%
         % Get the error message %

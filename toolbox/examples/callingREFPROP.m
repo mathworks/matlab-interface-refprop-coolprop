@@ -113,3 +113,45 @@ sPH = getFluidProperty(libLoc, "S", "P", 300, "H>", [100, 800], "Water", 1, 1, "
 disp("Entropy:")
 disp(sPH);
 % Ouptut is given as 1X2 array: sPH = [0.34999403295267, 2.221770408808]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% request multiple output properties %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS');
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy")
+disp(s1)
+disp(newline + "Density")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [  84.0073008508034
+%                                        2730.30138592574
+%                                        3012.04786856515]
+%                                  s1 = [   0.29646283622616
+%                                           7.49620215239088
+%                                           8.09900566147266]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% request multiple output properties with the output given as a struct %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                          outputAsStruct=true);
+disp("Output")
+disp(outVal)
+disp(newline + "Enthalpy:")
+disp(outVal.H)
+disp(newline + "Entropy:")
+disp(outVal.S)
+disp(newline + "Density:")
+disp(outVal.D)
+
+%    output is given a struct with fields: outVal = 
+%                                                    H: [3×1 double]
+%                                                    S: [3×1 double]
+%                                                    D: [3×1 double]
+%                                                    T: [293.15 400 542]
+%                                                    P: 101.325
+
