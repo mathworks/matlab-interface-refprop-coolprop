@@ -137,7 +137,8 @@ disp(tTrip);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % request multiple output properties %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', keepLibraryLoaded=true);
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water',...
+                                keepLibraryLoaded=true);
 disp("Enthalpy:")
 disp(h1)
 disp(newline + "Entropy")

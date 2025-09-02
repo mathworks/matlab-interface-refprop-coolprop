@@ -32,6 +32,14 @@
 %                                                                                            multiple funciton calls
 %                       NOTE: user should unload the library when finished: in the MATLAB command line type
 %                                                                           unloadlibrary('CoolProp')
+% outputAsStruct      = [optional (name value) pair] (boolean)  defaults to false -> require a number of output 
+%                                                                                    variables equal to the number of 
+%                                                                                    properties specified in 
+%                                                                                    requestedProperty value 
+%                                                                           true  -> single output variable which is a
+%                                                                                    structure whose fields are the same
+%                                                                                    name as each property specified in 
+%                                                                                    requestedProperty.
 %
 % See REFPROP documentation (https://trc.nist.gov/refprop/REFPROP.PDF) and CoolProp documentation 
 % (http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values 
@@ -217,6 +225,11 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
 
     arguments (Output, Repeating)
         requestedPropertyValue
+    end
+
+    tmpOut = regexprep(requestedProperty, '[\w,]', '');
+    if ~isempty(tmpOut)
+        error("Please specify requested properties as a comma separated list without any spaces, e.g., 'H,S,D'.")
     end
 
     if (opts.outputAsStruct == false) && (nargout ~= numel(strsplit(string(requestedProperty), ",")))

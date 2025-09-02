@@ -65,7 +65,7 @@ Whether the user wants to access REFPROP or CoolProp, the interface through the 
 The inputs to getFluidProperty are:
 
 1. libraryLocation - (string) the location of the REFPROP or CoolProp library files (dll, exe, etc.)            
-2. requestedProperty - (string) the thermodynamic property name for which the value will be returned 
+2. requestedProperty - (string) the thermodynamic property name(s) for which the value will be returned - separate multiple outputs with a comman (no spaces!) 'H,S,D' 
 3. inputProperty1 - (string) name of the 1st property used as the state point
 4. inputProperty1Value - (double) 1xM array of values of the 1st property used as the state point in the library's expected units 
 5. inputProperty2 - (string) name of the 2nd property used as the state point
@@ -81,6 +81,7 @@ The inputs to getFluidProperty are:
 10. desiredUnits - [REFPROP only] (char) enum as expected by refprop.dll to determine the units to use e.g., MKS, MASS BASE SI, etc.
 11. keepLibraryLoaded - [CoolProp only] (boolean) this value should be provided as a (name, value) or name=value pair - defaults to false, which will cause the CoolProp library to load and unload with every call to getFluidProperty. Keep this at default unless it is necessary to make many function calls in the same task. If the user passes in an array of inputs to a single function call, the library will remain loaded. If the user needs to make a function call in a loop, it might be beneficial to set the value to true. This will keep the CoolProp library loaded between calls to getFluidProperty. It takes a couple secods to load and unload the library, and this will impact the runtime of the task. 
 _**Note: When keeping the library loaded, it is important for the user to remember to unload the library at the end of the task. See the CoolProp example scripts in example directory.**_
+12. outputAsStruct - (boolean) this value should be proivded as a (name, value) or name=value pair - defaults to false, which will require a number of output variables equal to the number of properties specified in requestedProperty value. Changes this value to true to have a single output variable which is a structure whose fields are the same name as each property specified in requestedProperty.
 
 See [REFPROP documentation](https://trc.nist.gov/refprop/REFPROP.PDF) and [CoolProp documentation](http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values for requested and input properties.
 
