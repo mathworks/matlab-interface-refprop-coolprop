@@ -120,9 +120,9 @@ disp(sPH);
 [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS');
 disp("Enthalpy:")
 disp(h1)
-disp(newline + "Entropy")
+disp(newline + "Entropy:")
 disp(s1)
-disp(newline + "Density")
+disp(newline + "Density:")
 disp(d1)
 % output is given as 3 3x1 arrays: h1 = [  84.0073008508034
 %                                        2730.30138592574
@@ -155,3 +155,100 @@ disp(outVal.D)
 %                                                    T: [293.15 400 542]
 %                                                    P: 101.325
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% change the reference set point %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='ASH');
+disp("Using ASHRE reference point: h,s=0 @ -40C")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [ -12.1779688679777
+%                                        2634.11611620696
+%                                        2915.86259884637]
+%                                  s1 = [  16.5559971813317
+%                                          23.7557364974964
+%                                          24.3585400065782]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='NBP');
+disp("Using Normal Boiling Point(s) reference point: h,s=0 @ normal boiling points")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [-335.050432246858
+%                                        2311.24365282808
+%                                        2592.99013546748]
+%                                  s1 = [  -1.01045797632444
+%                                           6.18928133984027
+%                                           6.79208484892206]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='IIR');
+disp("Using IIR Convention reference point: h=200kJ/kg, s=1 kJ/kg-K for sat. liquid @ 0C")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [ 283.91175099254
+%                                        2930.20583606748
+%                                        3211.95231870688]
+%                                  s1 = [   1.29660818416891
+%                                           8.49634750033363
+%                                           9.09915100941541]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='DEF');
+disp("Using default reference point from fluid file. Compare to the output without hrf option used.")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [  84.0073008508034
+%                                        2730.30138592574
+%                                        3012.04786856515]
+%                                  s1 = [   0.29646283622616
+%                                           7.49620215239088
+%                                           8.09900566147266]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='OTH;10.0;1.0;323.15;101.325');
+disp("Using User-defined reference point for real gas: H0=10.0 J/mol, S0=1.0 J/mol-K, T0 = 323.15K, P0 = 101.325kPa")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [-124.856106424922
+%                                        2521.43797865002
+%                                        2803.18446128942]
+%                                  s1 = [  -0.351796093457317
+%                                           6.8479432227074
+%                                           7.45074673178918]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]

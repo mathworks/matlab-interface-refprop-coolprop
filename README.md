@@ -82,6 +82,17 @@ The inputs to getFluidProperty are:
 11. keepLibraryLoaded - [CoolProp only] (boolean) this value should be provided as a (name, value) or name=value pair - defaults to false, which will cause the CoolProp library to load and unload with every call to getFluidProperty. Keep this at default unless it is necessary to make many function calls in the same task. If the user passes in an array of inputs to a single function call, the library will remain loaded. If the user needs to make a function call in a loop, it might be beneficial to set the value to true. This will keep the CoolProp library loaded between calls to getFluidProperty. It takes a couple secods to load and unload the library, and this will impact the runtime of the task. 
 _**Note: When keeping the library loaded, it is important for the user to remember to unload the library at the end of the task. See the CoolProp example scripts in example directory.**_
 12. outputAsStruct - (boolean) this value should be proivded as a (name, value) or name=value pair - defaults to false, which will require a number of output variables equal to the number of properties specified in requestedProperty value. Changes this value to true to have a single output variable which is a structure whose fields are the same name as each property specified in requestedProperty.
+13. referenceState - [REFPROP only] (char) this value should be provided as a (name, value) or name=value pair - Reference state definition - if this is unspecified, REFPROP uses the default definition in the fluid file. Accepted options for reference states by REFPROP: 
+    1. 'ASH' for ASHRE convention h,s=0 @ -40C, 
+    2. 'NBP' h,s=0 at normal boiling point(s)
+    3. 'IIR' for IRR convention h=200kJ/kg, s=1 kJ/kg-K for sat. liquid @ 0C 
+    4. 'DEF' for default values in fluid file
+    5. 'OTH;H0;S0;T0;P0' for real gas state
+        1. where H0, S0, T0, P0 are the actual numbers specified by user e.g. 'OTH;10.0;1.0;323.15;101.325'
+        2. H0 in J/mol, S0 in J/mol-K, T0 in K, P0 in kPa
+    6. 'OT0;H0;S0;T0;P0' for ideal-gas state
+        1. where H0, S0, T0, P0 are the actual numbers specified by user e.g. 'OT0;10.0;1.0;323.15;101.325'
+        2. H0 in J/mol, S0 in J/mol-K, T0 in K, P0 in kPa
 
 See [REFPROP documentation](https://trc.nist.gov/refprop/REFPROP.PDF) and [CoolProp documentation](http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values for requested and input properties.
 

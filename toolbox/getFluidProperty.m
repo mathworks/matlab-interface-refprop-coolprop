@@ -32,14 +32,29 @@
 %                                                                                            multiple funciton calls
 %                       NOTE: user should unload the library when finished: in the MATLAB command line type
 %                                                                           unloadlibrary('CoolProp')
-% outputAsStruct      = [optional (name value) pair] (boolean)  defaults to false -> require a number of output 
-%                                                                                    variables equal to the number of 
-%                                                                                    properties specified in 
-%                                                                                    requestedProperty value 
-%                                                                           true  -> single output variable which is a
-%                                                                                    structure whose fields are the same
-%                                                                                    name as each property specified in 
-%                                                                                    requestedProperty.
+% outputAsStruct      = [optional (name value) pair] (boolean) defaults to false -> require a number of output 
+%                                                                                   variables equal to the number of 
+%                                                                                   properties specified in 
+%                                                                                   requestedProperty value 
+%                                                                          true  -> single output variable which is a
+%                                                                                   structure whose fields are the same
+%                                                                                   name as each property specified in 
+%                                                                                   requestedProperty.
+% referenceState     = [REFPROP optional (name, value) pair] (char) Reference state definition - if this is unspecified
+%                                                                    REFPROP uses the default definition in the fluid 
+%                                                                    file. Accepted options for reference states by
+%                                                                    REFPROP: 'ASH' for ASHRE convention h,s=0 @ -40C, 
+%                                                                             'NBP' h,s=0 at normal boiling point(s)
+%                                                                             'IIR' for IRR convention h=200kJ/kg, 
+%                                                                                   s=1 kJ/kg-K for sat. liquid @ 0C 
+%                                                                             'DEF' for default values in fluid file
+%                                                                             'OTH;H0;S0;T0;P0' for real gas state
+%                                                                             'OT0;H0;S0;T0;P0' for ideal-gas state
+%                                                                                    where H0, S0, T0, P0 are the 
+%                                                                                    actual numbers specified by user
+%                                                                                    e.g. 'OTH;10.0;1.0;323.15;101.325'
+%                                                                                    H0 in J/mol, S0 in J/mol-K, T0 in K
+%                                                                                    P0 in kPa
 %
 % See REFPROP documentation (https://trc.nist.gov/refprop/REFPROP.PDF) and CoolProp documentation 
 % (http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values 
@@ -114,7 +129,20 @@
 %                                                    D: [3×1 double]
 %                                                    T: [293.15 400 542]
 %                                                    P: 101.325
-
+%
+%    Set the reference state to the ASHRE state where h,s = 0 at -40C
+%    [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+%                                    referenceState='ASH');
+%
+%    output is given as 3 3x1 arrays: h1 = [ -12.1779688679777
+%                                           2634.11611620696
+%                                           2915.86259884637]
+%                                     s1 = [  16.5559971813317
+%                                             23.7557364974964
+%                                             24.3585400065782]
+%                                     d1 = [ 998.20715046745
+%                                              0.554943903490502
+%                                              0.406296343124391]
 %
 % EXAMPLES for CoolProp:                                                                                                
 %    libLoc = 'C:\Program Files\CoolProp\';                                                                        
@@ -221,13 +249,14 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         desiredUnits           (1, :) {mustBeText} = "MKS";
         opts.keepLibraryLoaded (1, 1) logical      = false;
         opts.outputAsStruct    (1, 1) logical      = false;
+        opts.referenceState    (1, :) {mustBeText} = "";
     end
 
     arguments (Output, Repeating)
         requestedPropertyValue
     end
 
-    tmpOut = regexprep(requestedProperty, '[\w,]', '');
+    tmpOut = char(regexprep(requestedProperty, '[\w,]', ''));
     if ~isempty(tmpOut)
         error("Please specify requested properties as a comma separated list without any spaces, e.g., 'H,S,D'.")
     end
@@ -257,7 +286,8 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         % unless we want the user to be able to specify multiple output properties or fluids   %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         tmpReqPropVal = MLrefprop(requestedProperty, inputProps, inputProperty1Value, inputProperty2Value,...
-                                  fluid, massOrMolar, fluidComposition, desiredUnits, libraryLocation, DebugOutput);
+                                  fluid, massOrMolar, fluidComposition, desiredUnits, libraryLocation, DebugOutput,...
+                                  opts.referenceState);
     else
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % shape the output to match REFPROP when given input proprty value arrays, we shouldn't have to do %
@@ -270,11 +300,14 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
 
     end % end if REFPROP, else CoolProp
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % reshape the output as a structure or independent variables for each of the output properties requested %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     requestedProperty = strsplit(string(requestedProperty), ",");
     if opts.outputAsStruct == true
         for nx = 1:numel(requestedProperty)
             RPV.(requestedProperty(nx)) = tmpReqPropVal(:, :, nx);
-        end
+        end % end loop over requested properties (nx)
         RPV.(inputProperty1) = inputProperty1Value;
         RPV.(inputProperty2) = inputProperty2Value;
         requestedPropertyValue = {RPV};
@@ -282,6 +315,6 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         requestedPropertyValue = cell(numel(requestedProperty), 1);
         for nx = 1:numel(requestedProperty)
             requestedPropertyValue{nx} = tmpReqPropVal(:, :, nx);
-        end
-    end
+        end % end loop over requested properties (nx)
+    end % end if outputing as struct, else individual variables
 end % end function getFluidProperty

@@ -47,7 +47,7 @@
 void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArray *inputs[])
 {
     int expectedOut =  1;   // expected number of output variables
-    int expectedIn  = 11;   // expected number of input  variables
+    int expectedIn  = 12;   // expected number of input  variables
     int inputInt;
     double inputDouble;
 
@@ -77,7 +77,7 @@ void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArr
         }
         else if(!mxIsDouble(inputs[1]))
         {
-            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable numReq expected to be of type DOUBLE.");
+            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable numReq expected to be of type DOUBLE with values greater than or equal 1.");
         }
         else if(!mxIsChar(inputs[2]))
         {
@@ -114,6 +114,10 @@ void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArr
         else if(!mxIsDouble(inputs[10]))
         {
             mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable DebugOutput expected to be of type DOUBLE with values of 0 or 1.");
+        }
+        else if(!mxIsChar(inputs[11]))
+        {
+            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable DebugOutput expected to be of type CHAR.");
         }
         else
         {
@@ -173,17 +177,19 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
           char   *unit_char = mxArrayToString(inputs[8]);               // Sets up which units to use -> molar or mass, SI or English
     std::string   path      = std::string(mxArrayToString(inputs[9]));  // location of reprop dll
           bool    DebugOut  = bool(mxGetScalar(inputs[10]));            // logical for printing debug info to the MATLAB console
+          char   *hrf       = mxArrayToString(inputs[11]);              // Reference state for fluid
 
     /////////////////////////////////////////////////////////////////// 
     // getting the size of all the char arrays passed through inputs // 
     /////////////////////////////////////////////////////////////////// 
-    size_t  propReq_len = (mxGetM(inputs[0]) * mxGetN(inputs[0])) + 1;  // size of propReq
-    size_t  spec_len    = (mxGetM(inputs[2]) * mxGetN(inputs[2])) + 1;  // size of first spec
-    size_t  numelVal1   =  mxGetNumberOfElements(inputs[3]);            // number of values for the first spec
-    size_t  numelVal2   =  mxGetNumberOfElements(inputs[4]);            // number of values for the second spec
-    size_t  fluid_len   = (mxGetM(inputs[5]) * mxGetN(inputs[5])) + 1;  // size of fluid
-    size_t  outArraySz  = 3;                                            // size of output array
-    size_t  dims[]      = {numelVal1, numelVal2, numReq};               // dimensions of output array
+    size_t  propReq_len = (mxGetM(inputs[0]) * mxGetN(inputs[0])) + 1;      // size of propReq
+    size_t  spec_len    = (mxGetM(inputs[2]) * mxGetN(inputs[2])) + 1;      // size of first spec
+    size_t  numelVal1   =  mxGetNumberOfElements(inputs[3]);                // number of values for the first spec
+    size_t  numelVal2   =  mxGetNumberOfElements(inputs[4]);                // number of values for the second spec
+    size_t  fluid_len   = (mxGetM(inputs[5]) * mxGetN(inputs[5])) + 1;      // size of fluid
+    size_t  outArraySz  = 3;                                                // size of output array
+    size_t  dims[]      = {numelVal1, numelVal2, numReq};                   // dimensions of output array
+    size_t  hrf_len     = (mxGetM(inputs[11]) * mxGetN(inputs[11])) + 1;    // number of chars in hrf
     
     /////////////////////////////////////////////
     // Allocate memory for the output variable //
@@ -307,12 +313,30 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
             strncpy(hFld, fluid,   fluid_len);      // change fluid string to change hFld
             strncpy(hIn,  specSum, spec_len);       // change hIn here directly
             strncpy(hOut, propReq, propReq_len);    // change hOut here directly
-            
+
             ///////////////////////////////////////////
             //running the first set at itr = itc = 0 //
             ///////////////////////////////////////////
             a = value1[itr]; // set first spec entry
             b = value2[itc]; // set second spec entry
+
+            ////////////////////////////////////////////////////////////////////////////
+            // if the user has passed in a reference state tell REFPROP to run SETREF //
+            // else, use the default reference state in the fluid file                //
+            ////////////////////////////////////////////////////////////////////////////
+            if(hrf_len > 1)
+            {
+                char hInFLAG [255];
+                hInFLAG[0] = 'S';
+                hInFLAG[1] = 'E';
+                hInFLAG[2] = 'T';
+                hInFLAG[3] = 'R';
+                hInFLAG[4] = 'E';
+                hInFLAG[5] = 'F';
+                
+                REFPROPdll(hFld, hInFLAG, hrf, iUnits, iMass, mixFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
+            }
+            
             REFPROPdll(hFld, hIn, hOut, iUnits, iMass, mixFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
             if(ierr != 0)
             {

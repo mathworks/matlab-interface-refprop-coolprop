@@ -95,18 +95,20 @@
 % K. McGarrity
 % 16 JAN 2020
 
-function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits, Path2Refprop, DebugOutput)
+function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits,...
+                            Path2Refprop, DebugOutput, referenceState)
     arguments
-        PropReq       (1, :)char;
-        Spec          (1, :)char;
-        Value1        (1, :)double;
-        Value2        (1, :)double;
-        Fluid         (1, :)char;
-        MassOrMolar   (1, 1)double;
-        Composition   (1, :)double;
-        DesiredUnits  (1, :)char;
-        Path2Refprop  (1, :)char;
-        DebugOutput   (1, 1)double;
+        PropReq        (1, :)char;
+        Spec           (1, :)char;
+        Value1         (1, :)double;
+        Value2         (1, :)double;
+        Fluid          (1, :)char;
+        MassOrMolar    (1, 1)double;
+        Composition    (1, :)double;
+        DesiredUnits   (1, :)char;
+        Path2Refprop   (1, :)char;
+        DebugOutput    (1, 1)double;
+        referenceState (1, :)char;
     end
     
     PossibleSpecs  = {'T', 'P', 'D', 'E', 'H', 'S', 'Q'};   % Temperature, Pressure, Density, Energy, Enthalpy, Entropy, Quality
@@ -211,13 +213,17 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
     nelCmp = numel(Composition);
     nelFld = numel(strsplit(Fluid, ';'));
     if nelCmp ~= nelFld
-        error('Fluid must contain the same number of elements as the specified composition. Currently, you have specified %d fluids: %s, and %d compositions', nelFld, Fluid, nelCmp);
+        error(   "Fluid must contain the same number of elements as the specified composition. "...
+               + "Currently, you have specified " + num2str(nelFld) + " fluids: " + Fluid + ", and "...
+               + numel(nelCmp) + " compositions");
     end
     if (sum(Composition) < (1 - 0.0001)) || (sum(Composition) > (1 + 0.0001)) || any(Composition < 0)
-        error('Composition must contain positive values between 0 and 1, which sum to 1. Currently, your composition sums to %d', sum(Composition));
+        error(   "Composition must contain positive values between 0 and 1, which sum to 1. "...
+               + "Currently, your composition sums to " + num2str(sum(Composition)));
     end
     if nelCmp > 20
-        error('Composition and Fluid cannot have more than 20 elements. Currently, your Composition and Fluid arrays contains %d elements.', nelCmp);
+        error(   "Composition and Fluid cannot have more than 20 elements. Currently, your Composition "...
+               + "and Fluid arrays contains " + num2str(nelCmp) + " elements.");
     end
     Composition = [Composition, zeros(1, (20 - nelCmp))];
 
@@ -233,7 +239,8 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
     % call to the mex function that queries refprop %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     try
-        output = hiLevelMexC(PropReq, numReqs, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits, Path2Refprop, DebugOutput);
+        output = hiLevelMexC(PropReq, numReqs, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits,...
+                             Path2Refprop, DebugOutput, referenceState);
     catch ME
         %%%%%%%%%%%%%%%%%%%%%%%%%
         % Get the error message %
