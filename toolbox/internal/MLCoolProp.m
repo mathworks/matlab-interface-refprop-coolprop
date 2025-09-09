@@ -160,7 +160,7 @@ classdef MLCoolProp < handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % ensure Fluid Composition sums to 1 %
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if ~isbetween(sum(FluidComposition), 0.99999999, 1.000000001)
+            if ((sum(FluidComposition) < 0.99999999) || (sum(FluidComposition) > 1.000000001))
                 error(   "Composition must contain positive values between 0 and 1, which sum to 1. "...
                        + "Currently, your composition [" + num2str(FluidComposition) + "] sums to " ...
                        + num2str(sum(FluidComposition)));
@@ -219,17 +219,24 @@ classdef MLCoolProp < handle
             end
         
             if strcmp(obj.libMethod, 'PropsSI')
+                if startsWith(outputVars, "[")
+                    outputVars = strrep(strrep(outputVars, "["), "]");
+                end
+                outputVars = strsplit(outputVars, ",");
+
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % loop through the two input values %
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 for ix1 = 1:numel(Input1Val)
                     for ix2 = 1:numel(Input2Val)
-                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                        % get the value from CoolProp %
-                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                        outVals(ix1, ix2) = obj.getOutputValue(outputVars, inputPair=inputPair,...
-                                                               input1=Input1Val(ix1), input2=Input2Val(ix2),...
-                                                               Species=Fluid);
+                        for ix3 = 1:numel(outputVars)
+                            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                            % get the value from CoolProp %
+                            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                            outVals(ix1, ix2, ix3) = obj.getOutputValue(outputVars{ix3}, inputPair=inputPair,...
+                                                                        input1=Input1Val(ix1), input2=Input2Val(ix2),...
+                                                                        Species=Fluid);
+                        end % end loop over output properties (ix3)
                     end % end loop over input property 2 values (ix2)
                 end % end loop over input property 1 values (ix1)
             elseif strcmp(obj.libMethod, 'Props1SI')
