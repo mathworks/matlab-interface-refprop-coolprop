@@ -230,6 +230,10 @@
 % Rev 1: Original version
 % K. McGarrity
 % 29 JAN 2025
+%
+% Rev 2: Added multi-outputs 
+%        Added referenceState for REFPROP calls
+% 9 SEP 2025
 
 function requestedPropertyValue = getFluidProperty(libraryLocation, requestedProperty,... 
                                                    inputProperty1, inputProperty1Value,...
