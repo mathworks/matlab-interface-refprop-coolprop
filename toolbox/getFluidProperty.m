@@ -191,7 +191,7 @@
 %    h_max = getFluidProperty(coolPropLib,'H', 'T', T_max, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
 %
 %
-%    Get multiple properties for a give fluid:
+%    Get multiple properties for a given fluid:
 %       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
 %       Separate the output properties using commas and no spaces
 %    [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
@@ -207,7 +207,7 @@
 %                                                     0.554943903490499
 %                                                     0.40629634312439]
 %
-%    Get multiple properties for a give fluid:
+%    Get multiple properties for a given fluid:
 %       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
 %       Separate the output properties using commas and no spaces
 %       use outputAsStruct flag to receive the output as a struct whose field names match the output properties
@@ -230,6 +230,10 @@
 % Rev 1: Original version
 % K. McGarrity
 % 29 JAN 2025
+%
+% Rev 2: Added multi-outputs 
+%        Added referenceState for REFPROP calls
+% 9 SEP 2025
 
 function requestedPropertyValue = getFluidProperty(libraryLocation, requestedProperty,... 
                                                    inputProperty1, inputProperty1Value,...
