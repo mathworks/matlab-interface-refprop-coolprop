@@ -102,17 +102,17 @@ disp(pMelt)
 sPH = getFluidProperty(libLoc, "S", "P", 300, "H", [100, 800], "Water", 1, 1, "MKS");
 disp("Entropy:")
 disp(sPH);
-% Ouptut is given as 1X2 array: sPH = [0.349994032961696, 2.25836610560853]
+% Output is given as 1X2 array: sPH = [0.349994032961696, 2.25836610560853]
 
 sPH = getFluidProperty(libLoc, "S", "P", 300, "H<", [100, 800], "Water", 1, 1, "MKS");
 disp("Entropy:")
 disp(sPH);
-% Ouptut is given as 1X2 array: sPH = [0.349994052255697, 2.22177013280536]
+% Output is given as 1X2 array: sPH = [0.349994052255697, 2.22177013280536]
 
 sPH = getFluidProperty(libLoc, "S", "P", 300, "H>", [100, 800], "Water", 1, 1, "MKS");
 disp("Entropy:")
 disp(sPH);
-% Ouptut is given as 1X2 array: sPH = [0.34999403295267, 2.221770408808]
+% Output is given as 1X2 array: sPH = [0.34999403295267, 2.221770408808]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % request multiple output properties %
@@ -148,12 +148,12 @@ disp(outVal.S)
 disp(newline + "Density:")
 disp(outVal.D)
 
-%    output is given a struct with fields: outVal = 
-%                                                    H: [3×1 double]
-%                                                    S: [3×1 double]
-%                                                    D: [3×1 double]
-%                                                    T: [293.15 400 542]
-%                                                    P: 101.325
+% output is given a struct with fields: outVal = 
+%                                                 H: [3×1 double]
+%                                                 S: [3×1 double]
+%                                                 D: [3×1 double]
+%                                                 T: [293.15 400 542]
+%                                                 P: 101.325
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % change the reference set point %

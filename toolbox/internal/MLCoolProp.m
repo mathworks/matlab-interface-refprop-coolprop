@@ -21,9 +21,9 @@ classdef MLCoolProp < handle
     %  libMethod         = CHAR with the CoolProp library method to call - almost always it should be PropsSI
     %  keepLibraryLoaded = [CoolProp optional (name, value) pair] (logical) defaults to false -> load and unload
     %                                                                                             CoolProp library with 
-    %                                                                                             every funciton call
+    %                                                                                             every function call
     %                                                                                    true -> keep library loaded for
-    %                                                                                            multiple funciton calls
+    %                                                                                            multiple function calls
     %                       NOTE: user should unload the library when finished: in the MATLAB command line type
     %                                                                           unloadlibrary('CoolProp')
     %
@@ -376,7 +376,7 @@ classdef MLCoolProp < handle
                                         inputPair{2}, opts.input2, opts.Species);
                 otherwise
                     error("Time to handle the requested library method: " + obj.libMethod);
-            end % ene switch over library method
+            end % end switch over library method
             obj.coolpropErrorCheck(opts.Species)
         end % end method makeLibCall
         

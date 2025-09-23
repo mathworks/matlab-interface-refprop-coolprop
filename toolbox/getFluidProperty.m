@@ -27,9 +27,9 @@
 %                                             e.g., MKS, MASS BASE SI, etc.          
 % keepLibraryLoaded   = [CoolProp optional (name, value) pair] (logical) defaults to false -> load and unload CoolProp 
 %                                                                                             library with every 
-%                                                                                             funciton call
+%                                                                                             function call
 %                                                                                    true -> keep library loaded for
-%                                                                                            multiple funciton calls
+%                                                                                            multiple function calls
 %                       NOTE: user should unload the library when finished: in the MATLAB command line type
 %                                                                           unloadlibrary('CoolProp')
 % outputAsStruct      = [optional (name value) pair] (boolean) defaults to false -> require a number of output 
@@ -120,7 +120,7 @@
 %       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
 %       Separate the output properties using commas and no spaces
 %       use outputAsStruct flag to receive the output as a struct whose field names match the output properties
-%       requested - this option will also put the intput values as fields in the structure
+%       requested - this option will also put the input values as fields in the structure
 %    outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS', outputAsStruct=true)
 %
 %    output is given a struct with fields: outVal = 
@@ -211,7 +211,7 @@
 %       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
 %       Separate the output properties using commas and no spaces
 %       use outputAsStruct flag to receive the output as a struct whose field names match the output properties
-%       requested - this option will also put the intput values as fields in the structure
+%       requested - this option will also put the input values as fields in the structure
 %    outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
 %                              keepLibraryLoaded=true, outputAsStruct=true)
 %
@@ -320,5 +320,5 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         for nx = 1:numel(requestedProperty)
             requestedPropertyValue{nx} = tmpReqPropVal(:, :, nx);
         end % end loop over requested properties (nx)
-    end % end if outputing as struct, else individual variables
+    end % end if outputting as struct, else individual variables
 end % end function getFluidProperty

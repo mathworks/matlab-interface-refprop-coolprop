@@ -95,7 +95,7 @@
 %       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
 %       Separate the output properties using commas and no spaces
 %       use outputAsStruct flag to receive the output as a struct whose field names match the output properties
-%       requested - this option will also put the intput values as fields in the structure
+%       requested - this option will also put the input values as fields in the structure
 %    outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
 %                              keepLibraryLoaded=true, outputAsStruct=true)
 %
@@ -111,15 +111,15 @@
 
 % History:
 %
-% Rev 8: Include ability to deinfe reference set point
+% Rev 8: Include ability to define reference set point
 % K. McGarrity
 % 09 SEP 2025
 %
-% Rev 7: Use arguements to ensure the correct data type is coming through 
+% Rev 7: Use arguments to ensure the correct data type is coming through 
 % K. McGarrity
 % 29 JAN 2025
 %
-% Rev 6: Try/catch and error hanldling. Add mixture capability.
+% Rev 6: Try/catch and error handling. Add mixture capability.
 %
 % Rev 5: Updating documentation typos
 % K. McGarrity
@@ -162,7 +162,7 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
     
     PossibleSpecs  = {'T', 'P', 'D', 'E', 'H', 'S', 'Q'};   % Temperature, Pressure, Density, Energy, Enthalpy, Entropy, Quality
     AddonsAfter1   = {'MELT', 'SUBL'};                      % Melting or sublimation point given the input properties
-    AddonsAfter2   = {'L', '>', '<', 'V'};                  % Single phase liquid (L, >), Single Phase Vaopor (<, V)
+    AddonsAfter2   = {'L', '>', '<', 'V'};                  % Single phase liquid (L, >), Single Phase Vapor (<, V)
 
     SupportedSpecFlags   = {'NBP', 'CRIT', 'TRIP', 'DSAT', 'HSAT', 'HSAT2', 'SSAT', 'SSAT2', 'SSAT3'};
     UnsupportedSpecFlags = {'FLAGS', 'EOSMIN', 'EOSMAX', 'SETREF', 'SETREFOFF', 'PATH', 'SATSPLN'};
@@ -215,7 +215,7 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
         % and must be different from each other             %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if strcmp(Spec, '  ')
-           % noop (Two blank spaces allows for critical and triple point reqs.)
+           % no-op (Two blank spaces allows for critical and triple point reqs.)
         elseif (    (~(    any(strcmpi(Spec(1), PossibleSpecs))    ...
                     && any(strcmpi(Spec(2), PossibleSpecs)) ) )...
              || (          strcmpi(Spec(1), Spec(2)      )    ) )

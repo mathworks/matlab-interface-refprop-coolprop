@@ -169,10 +169,10 @@ disp(outVal.S)
 disp(newline + "Density:")
 disp(outVal.D)
 
-%    output is given a struct with fields: outVal = 
-%                                                    H: [3×1 double]
-%                                                    S: [3×1 double]
-%                                                    D: [3×1 double]
-%                                                    T: [293.15 400 542]
-%                                                    P: 101.325
+% output is given a struct with fields: outVal = 
+%                                                 H: [3×1 double]
+%                                                 S: [3×1 double]
+%                                                 D: [3×1 double]
+%                                                 T: [293.15 400 542]
+%                                                 P: 101.325
 
