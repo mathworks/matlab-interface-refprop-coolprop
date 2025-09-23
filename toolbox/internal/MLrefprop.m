@@ -7,19 +7,34 @@
 %                                                                                         
 %   Where (see: https://refprop-docs.readthedocs.io/en/latest/DLL/high_level.html)        
 %                                                                                         
-%       output  = DOUBLE (array of size MxN or scalar) output from RefProp for the desired Property from propReq. M is 
-%                         the size of Value1 and N is the size of Value2                                                          
-%       propReq = CHAR value accepted by REFPROP as 'hOut' values                         
-%       spec    = CHAR value accepted by REFPROP as 'hIn'  values                         
-%       Value1  = DOUBLE (array of size 1xM or scalar) of values related to the first character in spec                                                       
-%       Value2  = DOUBLE (array of size 1XN or scalar) of values related to the second character in spec                                                       
-%       Fluid   = CHAR value accepted by CoolProp as fluid values for multi-species, list species 1 to numSpec 
-%                      (where numSpec is specified by the Composition variable) separated by semicolons (;)                                             
-%  Composition  = DOUBLE (1xnumSpec array) of species fractions where (1 < numSpec <= 20) and values must sum to 1                                  
-%  MassOrMolar  = INT value to determine input composition units: 0 -> Molar, 1 -> Mass   
-%  DesiredUnits = CHAR value to determine units to use (enum as expected by refprop.dll)  
-%  Path2Refprop = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)   
-%  DebugOutput  = DOUBLE value (0 to suppress, 1 to show) debug output in MATLAB console  
+%       output    = DOUBLE (array of size MxN or scalar) output from RefProp for the desired Property from propReq.
+%                           M is the size of Value1 and N is the size of Value2                                                          
+%       propReq   = CHAR value accepted by REFPROP as 'hOut' values                         
+%       spec      = CHAR value accepted by REFPROP as 'hIn'  values                         
+%       Value1    = DOUBLE (array of size 1xM or scalar) of values related to the first character in spec                                                       
+%       Value2    = DOUBLE (array of size 1XN or scalar) of values related to the second character in spec                                                       
+%       Fluid     = CHAR value accepted by CoolProp as fluid values for multi-species, list species 1 to numSpec 
+%                        (where numSpec is specified by the Composition variable) separated by semicolons (;)                                             
+%  Composition    = DOUBLE (1xnumSpec array) of species fractions where (1 < numSpec <= 20) and values must sum to 1                                  
+%  MassOrMolar    = INT value to determine input composition units: 0 -> Molar, 1 -> Mass   
+%  DesiredUnits   = CHAR value to determine units to use (enum as expected by refprop.dll)  
+%  Path2Refprop   = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)   
+%  DebugOutput    = DOUBLE value (0 to suppress, 1 to show) debug output in MATLAB console  
+%  referenceState = CHAR [optional (name, value) pair] Reference state definition - if this is unspecified REFPROP uses 
+%                                                      the default definition in the fluid file. Accepted options for 
+%                                                      reference states by
+%                                                      REFPROP: 'ASH' for ASHRE convention h,s=0 @ -40C, 
+%                                                               'NBP' h,s=0 at normal boiling point(s)
+%                                                               'IIR' for IRR convention h=200kJ/kg, 
+%                                                                     s=1 kJ/kg-K for sat. liquid @ 0C 
+%                                                               'DEF' for default values in fluid file
+%                                                               'OTH;H0;S0;T0;P0' for real gas state
+%                                                               'OT0;H0;S0;T0;P0' for ideal-gas state
+%                                                                     where H0, S0, T0, P0 are the actual numbers 
+%                                                                     specified by user 
+%                                                                     e.g., 'OTH;10.0;1.0;323.15;101.325' H0 in J/mol, 
+%                                                                           S0 in J/mol-K, T0 in K P0 in kPa
+%
 %                                                                                         
 %  Examples:     
 %    refpropPath = 'C:\Program Files (x86)\REFPROP\';
@@ -60,11 +75,45 @@
 %    in the input species string.                                                         
 %    h = MLrefprop('H', 'TP', 300, 101.325, 'GLFCOAST.MIX', 1, 1, 'MASS BASE SI', refpropPath, 1)                                      
 %                                                                                         
+%    Get multiple properties for a give fluid:
+%       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
+%       Separate the output properties using commas and no spaces
+%    [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
+%                                    keepLibraryLoaded=true)
+% 
+%    output is given as three 3x1 arrays: h1 = [  84007.3008506628
+%                                               2730301.38592019
+%                                               3012047.86854244]
+%                                         s1 = [    296.46283622518
+%                                                  7496.20215237541
+%                                                  8099.00566142102]
+%                                         d1 = [    998.207150467928
+%                                                     0.554943903490499
+%                                                     0.40629634312439]
+%
+%    Get multiple properties for a give fluid:
+%       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
+%       Separate the output properties using commas and no spaces
+%       use outputAsStruct flag to receive the output as a struct whose field names match the output properties
+%       requested - this option will also put the intput values as fields in the structure
+%    outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
+%                              keepLibraryLoaded=true, outputAsStruct=true)
+%
+%    output is given a struct with fields: outVal = 
+%                                                    H: [3×1 double]
+%                                                    S: [3×1 double]
+%                                                    D: [3×1 double]
+%                                                    T: [293.15 400 542]
+%                                                    P: 101.325
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Copyright 2019 - 2025 The MathWorks, Inc.
 
 % History:
+%
+% Rev 8: Include ability to deinfe reference set point
+% K. McGarrity
+% 09 SEP 2025
 %
 % Rev 7: Use arguements to ensure the correct data type is coming through 
 % K. McGarrity

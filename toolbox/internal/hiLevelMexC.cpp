@@ -265,7 +265,10 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
         ////////////////////////////////////////////////////////////////////
         if( (mix_string_search.length() > 4) && (mixFound + 4) == mix_string_search.length())
         {
-            mexPrintf("Found Mixture from .MIX file\n");
+            if (DebugOut == true)
+            {
+                mexPrintf("Found Mixture from .MIX file\n");
+            }
             SETMIXTUREdll(const_cast<char*>(fluid), z, ierr, hFld_length);   
             mixFlag = 1;
         }
@@ -277,7 +280,10 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
             mixFound = mix_string_search.rfind(";");
             if (mixFound < mix_string_search.length())
             {
-                mexPrintf("Found Mixture passed in as arguement\n");
+                if (DebugOut == true)
+                {
+                    mexPrintf("Found Mixture passed in as argument\n");
+                }
                 mixFlag = 1;
             } // end if mixture, else individual fluid
             SETFLUIDSdll(const_cast<char *>(fluid), ierr, hFld_length);
