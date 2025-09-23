@@ -64,7 +64,7 @@
 %    h1 = MLrefprop('H', 'TP', 293.15, 101.325, 'Oxygen;Nitrogen', [0.2, 0.8], 1, 'MKS', refpropPath, 1)                          
 %    Output is given as a 1x1 array: h1 = 295.6969                                        
 %                                                                                         
-%    Get sepcific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol (debug flag is ON) 
+%    Get specific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol (debug flag is ON) 
 %    h1 = MLrefprop('H', 'TP', [293.15 400.00 542.0], [101.325 104.1], 'Oxygen;Nitrogen', [0.2 0.8], 1, 'MKS',...                            
 %                   refpropPath, 1)                                 
 %    Output is given as a 3x2 array: h1 = [295.6969  295.6903                             
