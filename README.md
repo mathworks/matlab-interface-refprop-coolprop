@@ -93,6 +93,13 @@ _**Note: When keeping the library loaded, it is important for the user to rememb
     6. 'OT0;H0;S0;T0;P0' for ideal-gas state
         1. where H0, S0, T0, P0 are the actual numbers specified by user e.g. 'OT0;10.0;1.0;323.15;101.325'
         2. H0 in J/mol, S0 in J/mol-K, T0 in K, P0 in kPa
+14. RapidMode [REFPROP only] (boolean) this value should be provided as a (name, value) or name=value pair - defaults to false which will load and unload the REFPROP dll every time the funciton is called. It will also run all check on input values to ensure they are of the proper type and size. _**Keep this default**_ unless you plan to run the function call in a tight loop for more than order hundred iterations.
+    1. If at all possible, pass in the input values as arrays and request multiple outputs from a single function call
+    2. If you must call this funciton in a tight loop, only set this flag to true after you are certain you have provided the inputs to the funciton correctly
+        1. Best Practice: if possible, remove this flag from your last funciton call to unload the REFPROP dll - if you do not, the REFPROP dll will remain loaded 
+        2. CAUTION!!!!
+            1. If your inputs to REFPROP or not correct, REFPROP will crash and MATLAB may crash!
+            2. Suppress rapid mode to debug issues.
 
 See [REFPROP documentation](https://trc.nist.gov/refprop/REFPROP.PDF) and [CoolProp documentation](http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values for requested and input properties.
 

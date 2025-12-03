@@ -55,6 +55,11 @@
 %                                                                                    e.g. 'OTH;10.0;1.0;323.15;101.325'
 %                                                                                    H0 in J/mol, S0 in J/mol-K, T0 in K
 %                                                                                    P0 in kPa
+% RapidMode           = LOGICAL value (false to suppress, true to show) Rapid mode - when true, skip input checks and only
+%                                                                                load REFPROP DLL once, do not unload it
+%                               CAUTION!!!! The user needs to take care with their inputs!!!
+%                               If your inputs to REFPROP or not correct, MATLAB will crash!
+%                               Suppress rapid mode to debug issues.
 %
 % See REFPROP documentation (https://trc.nist.gov/refprop/REFPROP.PDF) and CoolProp documentation 
 % (http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values 
@@ -251,10 +256,10 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         fluidComposition       (1, :) double  = 1;     % assume single species - only if numel(fluid) > 1 will user need to provide
         massOrMolar            (1, 1) double  = 0;     % REFPROP ONLY
         desiredUnits           (1, :) char    = 'MKS'; % REFPROP ONLY
-        opts.rapidMode         (1, 1) logical = false; % REFPROP ONLY - set to true to skip input checks - this will signficantly speed up interations
-        opts.keepLibraryLoaded (1, 1) logical = false; % CoolProp ONLY
         opts.outputAsStruct    (1, 1) logical = false; % both
+        opts.keepLibraryLoaded (1, 1) logical = false; % CoolProp ONLY
         opts.referenceState    (1, :) char    = '';    % REFPROP ONLY
+        opts.rapidMode         (1, 1) logical = false; % REFPROP ONLY - set to true to skip input checks - this will signficantly speed up interations
     end
 
     arguments (Output, Repeating)

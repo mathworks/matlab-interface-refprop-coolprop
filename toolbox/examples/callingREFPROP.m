@@ -273,20 +273,20 @@ disp(outVal.D)
 %                                                 T: [293.15 400 542]
 %                                                 P: 101.325
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% keep the CoolProp library loaded for multiple calls where vectorizing does not make sense %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% keep the REFPROP library loaded and skip input checking for multiple calls where vectorizing does not make sense %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tic
 for ix = 1:100
-    h_min = getFluidProperty(libLoc,'H', 'T', 293.15, 'P', 101.325, 'Water', 1);
-    h_max = getFluidProperty(libLoc,'H', 'T', 542.0,  'P', 101.325, 'Water', 1);
-    s_min = getFluidProperty(libLoc,'S', 'T', 293.15, 'P', 101.325, 'Water', 1);
-    s_max = getFluidProperty(libLoc,'S', 'T', 542.0,  'P', 101.325, 'Water', 1);
-    d_min = getFluidProperty(libLoc,'D', 'T', 293.15, 'P', 101.325, 'Water', 1);
-    d_max = getFluidProperty(libLoc,'D', 'T', 542.0,  'P', 101.325, 'Water', 1);
+    h_min = getFluidProperty(libLoc,'H', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=false);
+    h_max = getFluidProperty(libLoc,'H', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=false);
+    s_min = getFluidProperty(libLoc,'S', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=false);
+    s_max = getFluidProperty(libLoc,'S', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=false);
+    d_min = getFluidProperty(libLoc,'D', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=false);
+    d_max = getFluidProperty(libLoc,'D', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=false);
 end
 t1 = toc;
-disp("Time to query 600 individual values while loading and unloading the library:")
+disp("Time to query 600 individual values while loading and unloading the library and running input checks:")
 disp(num2str(t1) + " seconds")
 disp("h_min = " + num2str(h_min));
 disp("h_max = " + num2str(h_max) + newline);
@@ -295,12 +295,14 @@ disp("s_max = " + num2str(s_max) + newline);
 disp("d_min = " + num2str(d_min));
 disp("d_max = " + num2str(d_max) + newline);
 % output is given as:
-% Time to query 40 individual values while loading and unloading the library:
-% 18.2734 seconds
-% T_min = 200
-% T_max = 500
-% h_min = 97296.6733
-% h_max = 650989.485
+% Time to query 600 individual values while loading and unloading the library:
+% 4.3759 seconds
+% h_min = 84.0073
+% h_max = 3012.0479
+% s_min = 0.29646
+% s_max = 8.099
+% d_min = 998.2072
+% d_max = 0.4063
 
 tic
 for ix = 1:100
@@ -313,7 +315,7 @@ for ix = 1:100
 end
 t2 = toc;
 
-disp("Time to query 600 individual values while keeping the library loaded:")
+disp("Time to query 600 individual values while keeping the library loaded and skipping input checks:")
 disp(num2str(t2) + " seconds")
 disp("h_min = " + num2str(h_min));
 disp("h_max = " + num2str(h_max) + newline);
@@ -322,10 +324,12 @@ disp("s_max = " + num2str(s_max) + newline);
 disp("d_min = " + num2str(d_min));
 disp("d_max = " + num2str(d_max) + newline);
 % output is given as:
-% Time to query 40 individual values while keeping the library loaded:
-% 0.51861 seconds
-% T_min = 200
-% T_max = 500
-% h_min = 97296.6733
-% h_max = 650989.485
+% Time to query 600 individual values while keeping the library loaded:
+% 0.060821 seconds
+% h_min = 84.0073
+% h_max = 3012.0479
+% s_min = 0.29646
+% s_max = 8.099
+% d_min = 998.2072
+% d_max = 0.4063
 
