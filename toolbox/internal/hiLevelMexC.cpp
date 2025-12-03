@@ -47,7 +47,7 @@
 void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArray *inputs[])
 {
     int expectedOut =  1;   // expected number of output variables
-    int expectedIn  = 12;   // expected number of input  variables
+    int expectedIn  = 13;   // expected number of input  variables
     int inputInt;
     double inputDouble;
 
@@ -111,13 +111,17 @@ void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArr
         {
             mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable PathToRefPropDll expected to be of type CHAR.");
         }
-        else if(!mxIsDouble(inputs[10]))
+        else if(!mxIsChar(inputs[10]))
         {
-            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable DebugOutput expected to be of type DOUBLE with values of 0 or 1.");
+            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable Reference State expected to be of type CHAR.");
         }
-        else if(!mxIsChar(inputs[11]))
+        else if(!mxIsLogicalScalar(inputs[11]))
         {
-            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable DebugOutput expected to be of type CHAR.");
+            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable RapidMode expected to be of type BOOLEAN with values of 0 or 1.");
+        }
+        else if(!mxIsLogicalScalar(inputs[12]))
+        {
+            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable DebugOutput expected to be of type BOOLEAN with values of 0 or 1.");
         }
         else
         {
@@ -140,18 +144,34 @@ void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArr
             ////////////////////////////////////////////////////////////////////////////////////////////
             // Checking that the value of DebugOutput is properly set to either 0 (false) or 1 (true) //
             ////////////////////////////////////////////////////////////////////////////////////////////
-            inputDouble = mxGetScalar(inputs[10]);
+            inputDouble = mxGetScalar(inputs[11]);
+            inputInt    = int(inputDouble);
+            if (double(inputInt) < (inputDouble - 0.01))
+            {
+                mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", 
+                                  "Decimal values of RapidMode are invalid: %f. Acceptable values are integer values of 0 for false and 1 for true to run in rapid mode.", inputDouble);
+            } // end if DebugOutput is invalid
+            if ((inputInt != 0) && (inputInt != 1))
+            {
+                mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", 
+                                  "RapidMode input of %d is invalid. Acceptable values are 0 for false and 1 for true to run in rapid mode.", inputDouble);
+            } // end if DebugOutput is invalid
+
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            // Checking that the value of DebugOutput is properly set to either 0 (false) or 1 (true) //
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            inputDouble = mxGetScalar(inputs[12]);
             inputInt    = int(inputDouble);
             if (double(inputInt) < (inputDouble - 0.01))
             {
                 mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", 
                                   "Decimal values of DebugOutput are invalid: %f. Acceptable values are integer values of 0 for false and 1 for true to print debug output to the MATLAB Console.", inputDouble);
-            } // end if MassOrMolar is invalid
+            } // end if DebugOutput is invalid
             if ((inputInt != 0) && (inputInt != 1))
             {
                 mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", 
                                   "DebugOutput input of %d is invalid. Acceptable values are 0 for false and 1 for true to print debug output to the MATLAB Console.", inputDouble);
-            } // end if MassOrMolar is invalid
+            } // end if DebugOutput is invalid
         } // end if input types not as expected, else they are as expected so check other requirements
     } // end if too few, elseif too many, else exactly the number of, input values expected
 } // end function checkArguments
@@ -161,7 +181,10 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
     ///////////////////////////////////////////////////////////////////////
     // check that the input and output variables have the correct format //
     ///////////////////////////////////////////////////////////////////////
-    checkArguments(numOutArg, outputs, numInArg, inputs);
+    if (!mxIsLogicalScalarTrue(inputs[11]))
+    {
+        checkArguments(numOutArg, outputs, numInArg, inputs);
+    }
 
     ///////////////////////////////
     // getting the actual inputs //
@@ -176,8 +199,9 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
           double *z         = mxGetPr(        inputs[7]);               // Composition on a mole or mass basis depending on iMass (array of max size 20)
           char   *unit_char = mxArrayToString(inputs[8]);               // Sets up which units to use -> molar or mass, SI or English
     std::string   path      = std::string(mxArrayToString(inputs[9]));  // location of reprop dll
-          bool    DebugOut  = bool(mxGetScalar(inputs[10]));            // logical for printing debug info to the MATLAB console
-          char   *hrf       = mxArrayToString(inputs[11]);              // Reference state for fluid
+          char   *hrf       = mxArrayToString(inputs[10]);              // Reference state for fluid
+          bool    RapidMode = mxIsLogicalScalarTrue(inputs[11]);        // logical for running in rapid mode - no input checking or library unloading
+          bool    DebugOut  = mxIsLogicalScalarTrue(inputs[12]);        // logical for printing debug info to the MATLAB console
 
     /////////////////////////////////////////////////////////////////// 
     // getting the size of all the char arrays passed through inputs // 
@@ -189,7 +213,7 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
     size_t  fluid_len   = (mxGetM(inputs[5]) * mxGetN(inputs[5])) + 1;      // size of fluid
     size_t  outArraySz  = 3;                                                // size of output array
     size_t  dims[]      = {numelVal1, numelVal2, numReq};                   // dimensions of output array
-    size_t  hrf_len     = (mxGetM(inputs[11]) * mxGetN(inputs[11])) + 1;    // number of chars in hrf
+    size_t  hrf_len     = (mxGetM(inputs[10]) * mxGetN(inputs[10])) + 1;    // number of chars in hrf
     
     /////////////////////////////////////////////
     // Allocate memory for the output variable //
@@ -232,7 +256,11 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
     /////////////////////////////
     // loading the Refprop dll //
     /////////////////////////////
-    bool loaded_REFPROP = load_REFPROP(serr, path, DLL_name);
+    static bool loaded_REFPROP = false;
+    if (!loaded_REFPROP)
+    {
+        loaded_REFPROP = load_REFPROP(serr, path, DLL_name);
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // try-catch like behavior, if it fails to load refprop, send an error and skip everything else //
@@ -516,11 +544,15 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
             //////////////////////////////////////////
             // Unload refprop to release the memory //
             //////////////////////////////////////////
-            bool unloaded_REFPROP = unload_REFPROP(serr);
-            if (!unloaded_REFPROP)
+            if (!RapidMode)
             {
-                printf("REFPROP failed to unload properly.");
-            } // if REFPROP failed to unload
+                bool unloaded_REFPROP = unload_REFPROP(serr);
+                if (!unloaded_REFPROP)
+                {
+                    printf("REFPROP failed to unload properly.");
+                } // if REFPROP failed to unload
+                loaded_REFPROP = false;
+            } // end if unloading REFPROP
         } // end if fluid failed, else succeeded, to set
     } // end if refprop failed, else succeeded, to load
 } // end function operator() -> entry point

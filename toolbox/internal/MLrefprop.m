@@ -19,7 +19,6 @@
 %  MassOrMolar    = INT value to determine input composition units: 0 -> Molar, 1 -> Mass   
 %  DesiredUnits   = CHAR value to determine units to use (enum as expected by refprop.dll)  
 %  Path2Refprop   = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)   
-%  DebugOutput    = DOUBLE value (0 to suppress, 1 to show) debug output in MATLAB console  
 %  referenceState = CHAR [optional (name, value) pair] Reference state definition - if this is unspecified REFPROP uses 
 %                                                      the default definition in the fluid file. Accepted options for 
 %                                                      reference states by
@@ -34,6 +33,12 @@
 %                                                                     specified by user 
 %                                                                     e.g., 'OTH;10.0;1.0;323.15;101.325' H0 in J/mol, 
 %                                                                           S0 in J/mol-K, T0 in K P0 in kPa
+%  RapidMode      = LOGICAL value (false to suppress, true to show) Rapid mode - when true, skip input checks and only
+%                                                                                load REFPROP DLL once, do not unload it
+%                       CAUTION!!!! The user needs to take care with their inputs!!!
+%                       If your inputs to REFPROP or not correct, MATLAB will crash!
+%                       Suppress rapid mode to debug issues.
+%  DebugOutput    = LOGICAL value (false to suppress, true to show) debug output in MATLAB console  
 %
 %                                                                                         
 %  Examples:     
@@ -78,8 +83,7 @@
 %    Get multiple properties for a give fluid:
 %       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
 %       Separate the output properties using commas and no spaces
-%    [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
-%                                    keepLibraryLoaded=true)
+%    [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water)
 % 
 %    output is given as three 3x1 arrays: h1 = [  84007.3008506628
 %                                               2730301.38592019
@@ -96,8 +100,7 @@
 %       Separate the output properties using commas and no spaces
 %       use outputAsStruct flag to receive the output as a struct whose field names match the output properties
 %       requested - this option will also put the input values as fields in the structure
-%    outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
-%                              keepLibraryLoaded=true, outputAsStruct=true)
+%    outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water', outputAsStruct=true)
 %
 %    output is given a struct with fields: outVal = 
 %                                                    H: [3×1 double]
@@ -145,136 +148,148 @@
 % 16 JAN 2020
 
 function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits,...
-                            Path2Refprop, DebugOutput, referenceState)
+                            Path2Refprop, referenceState, RapidMode, DebugOutput)
     arguments
-        PropReq        (1, :)char;
-        Spec           (1, :)char;
-        Value1         (1, :)double;
-        Value2         (1, :)double;
-        Fluid          (1, :)char;
-        MassOrMolar    (1, 1)double;
-        Composition    (1, :)double;
-        DesiredUnits   (1, :)char;
-        Path2Refprop   (1, :)char;
-        DebugOutput    (1, 1)double;
-        referenceState (1, :)char;
+        PropReq        (1, :) char;
+        Spec           (1, :) char;
+        Value1         (1, :) double;
+        Value2         (1, :) double;
+        Fluid          (1, :) char;
+        MassOrMolar    (1, 1) double;
+        Composition    (1, :) double;
+        DesiredUnits   (1, :) char;
+        Path2Refprop   (1, :) char;
+        referenceState (1, :) char;
+        RapidMode      (1, 1) logical;
+        DebugOutput    (1, 1) logical;
     end
-    
-    PossibleSpecs  = {'T', 'P', 'D', 'E', 'H', 'S', 'Q'};   % Temperature, Pressure, Density, Energy, Enthalpy, Entropy, Quality
-    AddonsAfter1   = {'MELT', 'SUBL'};                      % Melting or sublimation point given the input properties
-    AddonsAfter2   = {'L', '>', '<', 'V'};                  % Single phase liquid (L, >), Single Phase Vapor (<, V)
 
-    SupportedSpecFlags   = {'NBP', 'CRIT', 'TRIP', 'DSAT', 'HSAT', 'HSAT2', 'SSAT', 'SSAT2', 'SSAT3'};
-    UnsupportedSpecFlags = {'FLAGS', 'EOSMIN', 'EOSMAX', 'SETREF', 'SETREFOFF', 'PATH', 'SATSPLN'};
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Checking ProprReq Validity %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % UnsupportedPropFlags = {'ALTID', 'CAS#', 'CHEMFORM', 'SYNONYM', 'FAMILY', 'FLDNAME', 'HASH', 'INCHI',...
-    %                         'INCHIKEY', 'LONGNAME', 'SAFETY', 'NAME', 'NCOMP', 'UNNUMBER', 'DOI_EOS', 'DOI_VIS',...
-    %                         'DOI_TCX', 'DOI_STN', 'DOI_DIE', 'DOI_MLT', 'DOI_SBL', 'WEB_EOS', 'WEB_VIS', 'WEB_TCX',...
-    %                         'WEB_STN', 'WEB_DIE', 'WEB_MLT', 'WEB_SBL', 'REFSTATE', 'GWP', 'ODP', 'FDIR', 'UNITSTRING',...
-    %                         'UNITNUMB', 'UNITS', 'UNITCONV', 'UNITUSER', 'UNITUSER2', 'DLL#', 'PHASE', 'FULLCHEMFORM',...
-    %                         'HEATINGVALUE', 'LIQUIDFLUIDSTRING', 'VAPORFLUIDSTRING', 'QMOLE', 'QMASS', 'XMASS', 'XLIQ',...
-    %                         'XVAP', 'XMOLELIQ', 'XMOLEVAP', 'XMASSLIQ', 'XMASSVAP', 'LIQ', 'VAP', 'FIJMIX'};
-    % 
-    % if ~(any(strcmpi(PropReq, PossibleSpecs)) || any(strcmpi(PropReq, UnsupportedPropFlags)))
-    %     error('PropReq was given as %s, but must be given as one of the following: T, P, D, E, H, S, Q.', PropReq);
-    % elseif any(strcmpi(PropReq, UnsupportedPropFlags))
-    %     error('PropReq was given as %s, but MLrefprop does not support use of these flags at this time.', PropReq);
-    % end
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Checking Spec Validity %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%
-    mainMessage = 'it should be a pair of unique letters from the following: T, P, D, E, H, S, Q.';
-    enhcMessage = 'It may be enhanced with one of the following: L, <, >, V, MELT, SUBL.';
-    flagMessage = 'it may be one of the following supported flags: CRIT, TRIP, DSAT, NBP, HSAT, HSAT2, SSAT, SSAT2, SSAT3.';
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Checking Path2Refprop validity %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if ~exist(Path2Refprop, 'dir')
-        error(Path2Refprop + " does not exist. Please specify the path to your RefProp installation.");
-    else
-        rpDir = struct2table(dir(Path2Refprop));
-        if ~any(strcmp(rpDir.name, "REFPRP64.DLL"))
-            error(Path2Refprop + " does not contain ""REFPRP64.DLL"". Please specify the path to your RefProp installation.")
-        end % end if the directory does not contain REFPROP.EXE
-    end % end if not, else, refprop directory exists
-  
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Must have at least two characters for Spec %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if (size(Spec, 2) < 2) 
-        error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
-    elseif (size(Spec, 2) == 2)
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % if there are two characters,                      %
-        % they must both be from the allowed character list %
-        % and must be different from each other             %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if strcmp(Spec, '  ')
-           % no-op (Two blank spaces allows for critical and triple point reqs.)
-        elseif (    (~(    any(strcmpi(Spec(1), PossibleSpecs))    ...
-                    && any(strcmpi(Spec(2), PossibleSpecs)) ) )...
-             || (          strcmpi(Spec(1), Spec(2)      )    ) )
-            error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
-        end
-    elseif (size(Spec, 2) == 3) 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % if there are three characters,                                              %
-        %   Either: the first two characters must be from the allowed character list  %
-        %           and the third character must be from the add-on character list    %
-        %           and the first two characters must be different from each other    %
-        %     OR    it can be "NBP" -> one of the supported flags                     %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if(    (    (~(    any(strcmpi(Spec(1), PossibleSpecs  ))     ...
-                        && any(strcmpi(Spec(2), PossibleSpecs  ))     ...
-                        && any(strcmpi(Spec(3), AddonsAfter2   ))) )  ...
-                || (           strcmpi(Spec(1), Spec(2)        )   ) )...
-            && (          ~any(strcmpi(Spec, SupportedSpecFlags))    ) )
-            error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
-        end
-    else % (size(Spec, 2)  > 3)
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % if there are four or more characters,                                       %
-        %   Either: the first character must be from the allowed character list       %
-        %           and the rest of the entry must be from the add-on character list  %
-        %     OR    it can one of the supported flags (NOT one of the unsupported)    %
-        %    ELSE   if it is of the supported flags, send a message about it          %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if(    (~(    any(strcmpi(Spec(1),     PossibleSpecs))    ...
-                   && any(strcmpi(Spec(2:end), AddonsAfter1 ))) ) ...
-            && (     ~any(strcmpi(Spec, SupportedSpecFlags  ))  ) ...
-            && (     ~any(strcmpi(Spec, UnsupportedSpecFlags))  ) )
-            error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
-        elseif any(strcmpi(Spec, UnsupportedSpecFlags))
-            error('Spec was given as %s, but MLrefprop does not support use of this flag at this time.', Spec);
-        end 
-    end
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Checking validity of Composition and Fluid since there must be one fluid for every  %
-    % composition entry, we want to make sure they match in size. Also, Composition must  %
-    % have at least one and no more than twenty elements, and the elements must sum to 1. %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    nelCmp = numel(Composition);
-    nelFld = numel(strsplit(Fluid, ';'));
-    if nelCmp ~= nelFld
-        error(   "Fluid must contain the same number of elements as the specified composition. "...
-               + "Currently, you have specified " + num2str(nelFld) + " fluids: " + Fluid + ", and "...
-               + numel(nelCmp) + " compositions");
-    end
-    if (sum(Composition) < (1 - 0.0001)) || (sum(Composition) > (1 + 0.0001)) || any(Composition < 0)
-        error(   "Composition must contain positive values between 0 and 1, which sum to 1. "...
-               + "Currently, your composition sums to " + num2str(sum(Composition)));
-    end
-    if nelCmp > 20
-        error(   "Composition and Fluid cannot have more than 20 elements. Currently, your Composition "...
-               + "and Fluid arrays contains " + num2str(nelCmp) + " elements.");
-    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % these are required whether we check inputs or not %
+    % (Composition must be a 1x20 array for REPROP)     %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    nelCmp      = numel(Composition);
     Composition = [Composition, zeros(1, (20 - nelCmp))];
+
+    %%%%%%%%%%%%%%%%%%%%%%%%
+    % If not in Rapid Mode %
+    % Check input validity %
+    %%%%%%%%%%%%%%%%%%%%%%%%
+    if ~RapidMode
+        PossibleSpecs = {'T', 'P', 'D', 'E', 'H', 'S', 'Q'};   % Temperature, Pressure, Density, Energy, Enthalpy, Entropy, Quality
+        AddonsAfter1  = {'MELT', 'SUBL'};                      % Melting or sublimation point given the input properties
+        AddonsAfter2  = {'L', '>', '<', 'V'};                  % Single phase liquid (L, >), Single Phase Vapor (<, V)
+    
+        SupportedSpecFlags   = {'NBP', 'CRIT', 'TRIP', 'DSAT', 'HSAT', 'HSAT2', 'SSAT', 'SSAT2', 'SSAT3'};
+        UnsupportedSpecFlags = {'FLAGS', 'EOSMIN', 'EOSMAX', 'SETREF', 'SETREFOFF', 'PATH', 'SATSPLN'};
+    
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Checking ProprReq Validity %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % UnsupportedPropFlags = {'ALTID', 'CAS#', 'CHEMFORM', 'SYNONYM', 'FAMILY', 'FLDNAME', 'HASH', 'INCHI',...
+        %                         'INCHIKEY', 'LONGNAME', 'SAFETY', 'NAME', 'NCOMP', 'UNNUMBER', 'DOI_EOS', 'DOI_VIS',...
+        %                         'DOI_TCX', 'DOI_STN', 'DOI_DIE', 'DOI_MLT', 'DOI_SBL', 'WEB_EOS', 'WEB_VIS', 'WEB_TCX',...
+        %                         'WEB_STN', 'WEB_DIE', 'WEB_MLT', 'WEB_SBL', 'REFSTATE', 'GWP', 'ODP', 'FDIR', 'UNITSTRING',...
+        %                         'UNITNUMB', 'UNITS', 'UNITCONV', 'UNITUSER', 'UNITUSER2', 'DLL#', 'PHASE', 'FULLCHEMFORM',...
+        %                         'HEATINGVALUE', 'LIQUIDFLUIDSTRING', 'VAPORFLUIDSTRING', 'QMOLE', 'QMASS', 'XMASS', 'XLIQ',...
+        %                         'XVAP', 'XMOLELIQ', 'XMOLEVAP', 'XMASSLIQ', 'XMASSVAP', 'LIQ', 'VAP', 'FIJMIX'};
+        % 
+        % if ~(any(strcmpi(PropReq, PossibleSpecs)) || any(strcmpi(PropReq, UnsupportedPropFlags)))
+        %     error('PropReq was given as %s, but must be given as one of the following: T, P, D, E, H, S, Q.', PropReq);
+        % elseif any(strcmpi(PropReq, UnsupportedPropFlags))
+        %     error('PropReq was given as %s, but MLrefprop does not support use of these flags at this time.', PropReq);
+        % end
+    
+        %%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Checking Spec Validity %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%
+        mainMessage = 'it should be a pair of unique letters from the following: T, P, D, E, H, S, Q.';
+        enhcMessage = 'It may be enhanced with one of the following: L, <, >, V, MELT, SUBL.';
+        flagMessage = 'it may be one of the following supported flags: CRIT, TRIP, DSAT, NBP, HSAT, HSAT2, SSAT, SSAT2, SSAT3.';
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Checking Path2Refprop validity %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if ~exist(Path2Refprop, 'dir')
+            error(Path2Refprop + " does not exist. Please specify the path to your RefProp installation.");
+        else
+            rpDir = struct2table(dir(Path2Refprop));
+            if ~any(strcmp(rpDir.name, "REFPRP64.DLL"))
+                error(Path2Refprop + " does not contain ""REFPRP64.DLL"". Please specify the path to your RefProp installation.")
+            end % end if the directory does not contain REFPROP.EXE
+        end % end if not, else, refprop directory exists
+  
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Must have at least two characters for Spec %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if (size(Spec, 2) < 2) 
+            error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
+        elseif (size(Spec, 2) == 2)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % if there are two characters,                      %
+            % they must both be from the allowed character list %
+            % and must be different from each other             %
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if strcmp(Spec, '  ')
+               % no-op (Two blank spaces allows for critical and triple point reqs.)
+            elseif (    (~(    any(strcmpi(Spec(1), PossibleSpecs))    ...
+                            && any(strcmpi(Spec(2), PossibleSpecs)) ) )...
+                     || (          strcmpi(Spec(1), Spec(2)      )    ) )
+                error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
+            end
+        elseif (size(Spec, 2) == 3) 
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % if there are three characters,                                              %
+            %   Either: the first two characters must be from the allowed character list  %
+            %           and the third character must be from the add-on character list    %
+            %           and the first two characters must be different from each other    %
+            %     OR    it can be "NBP" -> one of the supported flags                     %
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if(    (    (~(    any(strcmpi(Spec(1), PossibleSpecs  ))     ...
+                            && any(strcmpi(Spec(2), PossibleSpecs  ))     ...
+                            && any(strcmpi(Spec(3), AddonsAfter2   ))) )  ...
+                    || (           strcmpi(Spec(1), Spec(2)        )   ) )...
+                && (          ~any(strcmpi(Spec, SupportedSpecFlags))    ) )
+                error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
+            end
+        else % (size(Spec, 2)  > 3)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % if there are four or more characters,                                       %
+            %   Either: the first character must be from the allowed character list       %
+            %           and the rest of the entry must be from the add-on character list  %
+            %     OR    it can one of the supported flags (NOT one of the unsupported)    %
+            %    ELSE   if it is of the supported flags, send a message about it          %
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if(    (~(    any(strcmpi(Spec(1),     PossibleSpecs))    ...
+                       && any(strcmpi(Spec(2:end), AddonsAfter1 ))) ) ...
+                && (     ~any(strcmpi(Spec, SupportedSpecFlags  ))  ) ...
+                && (     ~any(strcmpi(Spec, UnsupportedSpecFlags))  ) )
+                error('Spec was given as %s, but %s\n%s\nOr %s', Spec, mainMessage, enhcMessage, flagMessage)
+            elseif any(strcmpi(Spec, UnsupportedSpecFlags))
+                error('Spec was given as %s, but MLrefprop does not support use of this flag at this time.', Spec);
+            end 
+        end
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Checking validity of Composition and Fluid since there must be one fluid for every  %
+        % composition entry, we want to make sure they match in size. Also, Composition must  %
+        % have at least one and no more than twenty elements, and the elements must sum to 1. %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        nelFld = numel(strsplit(Fluid, ';'));
+        if nelCmp ~= nelFld
+            error(   "Fluid must contain the same number of elements as the specified composition. "...
+                   + "Currently, you have specified " + num2str(nelFld) + " fluids: " + Fluid + ", and "...
+                   + numel(nelCmp) + " compositions");
+        end
+        if (sum(Composition) < (1 - 0.0001)) || (sum(Composition) > (1 + 0.0001)) || any(Composition < 0)
+            error(   "Composition must contain positive values between 0 and 1, which sum to 1. "...
+                   + "Currently, your composition sums to " + num2str(sum(Composition)));
+        end
+        if nelCmp > 20
+            error(   "Composition and Fluid cannot have more than 20 elements. Currently, your Composition "...
+                   + "and Fluid arrays contains " + num2str(nelCmp) + " elements.");
+        end
+    end % end if checking inputs (not in Rapid Mode)
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % get the number of requested properties %
@@ -282,14 +297,22 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
     if startsWith(PropReq, "[")
         PropReq = strrep(strrep(PropReq, "["), "]");
     end
-    numReqs = numel(strsplit(PropReq, ","));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % only split the string if there are delimters %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if contains(PropReq, ',')
+        numReqs = numel(strsplit(PropReq, ","));
+    else
+        numReqs = 1;
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % call to the mex function that queries refprop %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     try
         output = hiLevelMexC(PropReq, numReqs, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits,...
-                             Path2Refprop, DebugOutput, referenceState);
+                             Path2Refprop, referenceState, RapidMode, DebugOutput);
     catch ME
         %%%%%%%%%%%%%%%%%%%%%%%%%
         % Get the error message %

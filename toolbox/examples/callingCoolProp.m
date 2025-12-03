@@ -137,7 +137,7 @@ disp(tTrip);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % request multiple output properties %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water',...
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
                                 keepLibraryLoaded=true);
 disp("Enthalpy:")
 disp(h1)
@@ -158,7 +158,7 @@ disp(d1)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % request multiple output properties with the output given as a struct %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', keepLibraryLoaded=true,...
+outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water', keepLibraryLoaded=true,...
                           outputAsStruct=true);
 disp("Output")
 disp(outVal)

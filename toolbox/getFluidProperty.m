@@ -241,35 +241,47 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
                                                    fluidComposition, massOrMolar, desiredUnits,...
                                                    opts)
     arguments (Input)
-        libraryLocation        (1, :) {mustBeText}
-        requestedProperty      (1, :) {mustBeText}
-        inputProperty1         (1, :) {mustBeText}
+        libraryLocation        (1, :) char
+        requestedProperty      (1, :) char
+        inputProperty1         (1, :) char
         inputProperty1Value    (1, :) double
-        inputProperty2         (1, :) {mustBeText}
+        inputProperty2         (1, :) char
         inputProperty2Value    (1, :) double
-        fluid                  (1, :) string
-        fluidComposition       (1, :) double       = 1; % assume single species - only if numel(fluid) > 1 will user need to provide
-        massOrMolar            (1, 1) double       = 0;
-        desiredUnits           (1, :) {mustBeText} = "MKS";
-        opts.keepLibraryLoaded (1, 1) logical      = false;
-        opts.outputAsStruct    (1, 1) logical      = false;
-        opts.referenceState    (1, :) {mustBeText} = "";
+        fluid                  (1, :) char
+        fluidComposition       (1, :) double  = 1;     % assume single species - only if numel(fluid) > 1 will user need to provide
+        massOrMolar            (1, 1) double  = 0;     % REFPROP ONLY
+        desiredUnits           (1, :) char    = 'MKS'; % REFPROP ONLY
+        opts.rapidMode         (1, 1) logical = false; % REFPROP ONLY - set to true to skip input checks - this will signficantly speed up interations
+        opts.keepLibraryLoaded (1, 1) logical = false; % CoolProp ONLY
+        opts.outputAsStruct    (1, 1) logical = false; % both
+        opts.referenceState    (1, :) char    = '';    % REFPROP ONLY
     end
 
     arguments (Output, Repeating)
         requestedPropertyValue
     end
 
-    tmpOut = char(regexprep(requestedProperty, '[\w,]', ''));
-    if ~isempty(tmpOut)
-        error("Please specify requested properties as a comma separated list without any spaces, e.g., 'H,S,D'.")
-    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % get the number of requested properties %
+    % properties are comma separated         %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    numReqProps = numel(regexp(requestedProperty, ',')) + 1;
 
-    if (opts.outputAsStruct == false) && (nargout ~= numel(strsplit(string(requestedProperty), ",")))
-        error(  "You specified " + numel(strsplit(string(requestedProperty), ",")) + " properties to output but "...
-              + "only provided " + nargout + " output variables. Please specify one output variable per property "...
-              + "or set the output to be an array.");
-    end
+    %%%%%%%%%%%%%%%%%%%%%%
+    % if checking inputs %
+    %%%%%%%%%%%%%%%%%%%%%%
+    if ~opts.rapidMode
+        tmpOut = char(regexprep(requestedProperty, '[\w,]', ''));
+        if ~isempty(tmpOut)
+            error("Please specify requested properties as a comma separated list without any spaces, e.g., 'H,S,D'.")
+        end
+    
+        if (opts.outputAsStruct == false) && (nargout ~= numReqProps)
+            error(  "You specified " + numel(requestedProperty) + " properties to output but "...
+                  + "only provided " + nargout + " output variables. Please specify one output variable per property "...
+                  + "or set the output to be an array.");
+        end
+    end % end if checking inputs
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % if useing REFPROP, else CoolProp %
@@ -278,20 +290,15 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % REFPROP expects as single input string %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        inputProps = string(inputProperty1) + string(inputProperty2);
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % we can probably remove this input from the function call someday %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        DebugOutput = false;
+        inputProps = [inputProperty1 inputProperty2];
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % MLrefprop takes care of all the input value checks, we shouldn't have to do anything %
         % unless we want the user to be able to specify multiple output properties or fluids   %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         tmpReqPropVal = MLrefprop(requestedProperty, inputProps, inputProperty1Value, inputProperty2Value,...
-                                  fluid, massOrMolar, fluidComposition, desiredUnits, libraryLocation, DebugOutput,...
-                                  opts.referenceState);
+                                  fluid, massOrMolar, fluidComposition, desiredUnits, libraryLocation,...
+                                  opts.referenceState, opts.rapidMode, false);
     else
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % shape the output to match REFPROP when given input proprty value arrays, we shouldn't have to do %
@@ -307,17 +314,17 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % reshape the output as a structure or independent variables for each of the output properties requested %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    requestedProperty = strsplit(string(requestedProperty), ",");
     if opts.outputAsStruct == true
-        for nx = 1:numel(requestedProperty)
-            RPV.(requestedProperty(nx)) = tmpReqPropVal(:, :, nx);
+        propIx = regexp(requestedProperty, '\w');
+        for nx = 1:numReqProps
+            RPV.(requestedProperty(propIx(nx))) = tmpReqPropVal(:, :, nx);
         end % end loop over requested properties (nx)
         RPV.(inputProperty1) = inputProperty1Value;
         RPV.(inputProperty2) = inputProperty2Value;
         requestedPropertyValue = {RPV};
     else
-        requestedPropertyValue = cell(numel(requestedProperty), 1);
-        for nx = 1:numel(requestedProperty)
+        requestedPropertyValue = cell(numReqProps, 1);
+        for nx = 1:numReqProps
             requestedPropertyValue{nx} = tmpReqPropVal(:, :, nx);
         end % end loop over requested properties (nx)
     end % end if outputting as struct, else individual variables

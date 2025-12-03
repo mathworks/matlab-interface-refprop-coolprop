@@ -167,12 +167,12 @@ disp(newline + "Entropy:")
 disp(s1)
 disp(newline + "Density:")
 disp(d1)
-% output is given as 3 3x1 arrays: h1 = [ -12.1779688679777
-%                                        2634.11611620696
-%                                        2915.86259884637]
-%                                  s1 = [  16.5559971813317
-%                                          23.7557364974964
-%                                          24.3585400065782]
+% output is given as 3 3x1 arrays: h1 = [  84.0073008508034
+%                                        2730.30138592574
+%                                        3012.04786856515]
+%                                  s1 = [   0.29646283622616
+%                                           7.49620215239088
+%                                           8.09900566147266]
 %                                  d1 = [ 998.20715046745
 %                                           0.554943903490502
 %                                           0.406296343124391]
@@ -252,3 +252,80 @@ disp(d1)
 %                                  d1 = [ 998.20715046745
 %                                           0.554943903490502
 %                                           0.406296343124391]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% request multiple output properties with the output given as a struct %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', outputAsStruct=true);
+disp("Output")
+disp(outVal)
+disp(newline + "Enthalpy:")
+disp(outVal.H)
+disp(newline + "Entropy:")
+disp(outVal.S)
+disp(newline + "Density:")
+disp(outVal.D)
+
+% output is given a struct with fields: outVal = 
+%                                                 H: [3×1 double]
+%                                                 S: [3×1 double]
+%                                                 D: [3×1 double]
+%                                                 T: [293.15 400 542]
+%                                                 P: 101.325
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% keep the CoolProp library loaded for multiple calls where vectorizing does not make sense %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tic
+for ix = 1:100
+    h_min = getFluidProperty(libLoc,'H', 'T', 293.15, 'P', 101.325, 'Water', 1);
+    h_max = getFluidProperty(libLoc,'H', 'T', 542.0,  'P', 101.325, 'Water', 1);
+    s_min = getFluidProperty(libLoc,'S', 'T', 293.15, 'P', 101.325, 'Water', 1);
+    s_max = getFluidProperty(libLoc,'S', 'T', 542.0,  'P', 101.325, 'Water', 1);
+    d_min = getFluidProperty(libLoc,'D', 'T', 293.15, 'P', 101.325, 'Water', 1);
+    d_max = getFluidProperty(libLoc,'D', 'T', 542.0,  'P', 101.325, 'Water', 1);
+end
+t1 = toc;
+disp("Time to query 600 individual values while loading and unloading the library:")
+disp(num2str(t1) + " seconds")
+disp("h_min = " + num2str(h_min));
+disp("h_max = " + num2str(h_max) + newline);
+disp("s_min = " + num2str(s_min));
+disp("s_max = " + num2str(s_max) + newline);
+disp("d_min = " + num2str(d_min));
+disp("d_max = " + num2str(d_max) + newline);
+% output is given as:
+% Time to query 40 individual values while loading and unloading the library:
+% 18.2734 seconds
+% T_min = 200
+% T_max = 500
+% h_min = 97296.6733
+% h_max = 650989.485
+
+tic
+for ix = 1:100
+    h_min = getFluidProperty(libLoc,'H', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=true);
+    h_max = getFluidProperty(libLoc,'H', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=true);
+    s_min = getFluidProperty(libLoc,'S', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=true);
+    s_max = getFluidProperty(libLoc,'S', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=true);
+    d_min = getFluidProperty(libLoc,'D', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=true);
+    d_max = getFluidProperty(libLoc,'D', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=true);
+end
+t2 = toc;
+
+disp("Time to query 600 individual values while keeping the library loaded:")
+disp(num2str(t2) + " seconds")
+disp("h_min = " + num2str(h_min));
+disp("h_max = " + num2str(h_max) + newline);
+disp("s_min = " + num2str(s_min));
+disp("s_max = " + num2str(s_max) + newline);
+disp("d_min = " + num2str(d_min));
+disp("d_max = " + num2str(d_max) + newline);
+% output is given as:
+% Time to query 40 individual values while keeping the library loaded:
+% 0.51861 seconds
+% T_min = 200
+% T_max = 500
+% h_min = 97296.6733
+% h_max = 650989.485
+
