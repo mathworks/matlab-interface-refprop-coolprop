@@ -5,7 +5,7 @@ origLoc = cd(fullfile('toolbox', 'internal'));
 
 try
     includePath = ['-I' fullfile(pwd, 'include')];
-    mex('hiLevelMexC.cpp', includePath, '-g');% '-O');
+    mex('hiLevelMexC.cpp', includePath, '-O');
 catch ME
     cd(origLoc);
     clear origLoc;

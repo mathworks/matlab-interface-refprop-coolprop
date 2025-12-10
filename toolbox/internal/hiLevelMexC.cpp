@@ -559,11 +559,7 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
     /////////////////////
     // Free the memory //
     /////////////////////
-    mxFree(specSum);
-    mxFree(propReq);
-    mxFree(fluid);
     mxFree(unit_char);
     mxFree(hrf);
-    mxFree(path);
 } // end function operator() -> entry point
 
