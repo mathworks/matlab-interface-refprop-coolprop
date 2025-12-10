@@ -555,5 +555,15 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
             } // end if unloading REFPROP
         } // end if fluid failed, else succeeded, to set
     } // end if refprop failed, else succeeded, to load
+
+    /////////////////////
+    // Free the memory //
+    /////////////////////
+    mxFree(specSum);
+    mxFree(propReq);
+    mxFree(fluid);
+    mxFree(unit_char);
+    mxFree(hrf);
+    mxFree(path);
 } // end function operator() -> entry point
 
