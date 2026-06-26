@@ -178,7 +178,7 @@
 %                          [0.71, 0.16, 0.1, 0.03])                                                                
 %    Output is given as a 1x1 array: h1 = 9374.9875                                                                
 %                                                                                                                  
-%    Get sepcific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol                                             
+%    Get specific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol                                             
 %    h1 = getFluidProperty(libLoc, 'Hmolar', 'T', [293.15 300.00 310.0], 'P', [101325 104100],...                  
 %                         'Nitrogen;Oxygen;Hydrogen;Water', [0.71, 0.16, 0.1, 0.03])                               
 %    Output is given as a 3x2 array: h1 = [ 9374.9875,  9343.7779;                                                 
@@ -288,7 +288,6 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         end
     end % end if checking inputs
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % if using REFPROP, else CoolProp %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -306,10 +305,10 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
                                   fluid, massOrMolar, fluidComposition, desiredUnits, libraryLocation,...
                                   opts.referenceState, opts.rapidMode, false);
     else
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % shape the output to match REFPROP when given input proprty value arrays, we shouldn't have to do %
-        % anything else unless we want the user to be able to specify multiple output properties or fluids %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % shape the output to match REFPROP when given input property value arrays, we shouldn't have to do %
+        % anything else unless we want the user to be able to specify multiple output properties or fluids  %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         cpObj = MLCoolProp(libraryLocation, opts.keepLibraryLoaded);
 
         tmpReqPropVal = cpObj.getCoolPropValues(requestedProperty, inputProperty1, inputProperty1Value,...
@@ -325,6 +324,7 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         for nx = 1:numReqProps
             RPV.(requestedProperty(propIx(nx))) = tmpReqPropVal(:, :, nx);
         end % end loop over requested properties (nx)
+        
         RPV.(inputProperty1) = inputProperty1Value;
         RPV.(inputProperty2) = inputProperty2Value;
         requestedPropertyValue = {RPV};

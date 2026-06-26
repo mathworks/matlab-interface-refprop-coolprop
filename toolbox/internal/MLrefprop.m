@@ -15,7 +15,7 @@
 %       Value2    = DOUBLE (array of size 1XN or scalar) of values related to the second character in spec                                                       
 %       Fluid     = CHAR value accepted by CoolProp as fluid values for multi-species, list species 1 to numSpec 
 %                        (where numSpec is specified by the Composition variable) separated by semicolons (;)                                             
-%  Composition    = DOUBLE (1xnumSpec array) of species fractions where (1 < numSpec <= 20) and values must sum to 1                                  
+%  Composition    = DOUBLE (1 x numSpec array) of species fractions where (1 < numSpec <= 20) and values must sum to 1                                  
 %  MassOrMolar    = INT value to determine input composition units: 0 -> Molar, 1 -> Mass   
 %  DesiredUnits   = CHAR value to determine units to use (enum as expected by refprop.dll)  
 %  Path2Refprop   = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)   
@@ -69,7 +69,7 @@
 %    h1 = MLrefprop('H', 'TP', 293.15, 101.325, 'Oxygen;Nitrogen', [0.2, 0.8], 1, 'MKS', refpropPath, 1)                          
 %    Output is given as a 1x1 array: h1 = 295.6969                                        
 %                                                                                         
-%    Get sepcific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol (debug flag is ON) 
+%    Get specific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol (debug flag is ON) 
 %    h1 = MLrefprop('H', 'TP', [293.15 400.00 542.0], [101.325 104.1], 'Oxygen;Nitrogen', [0.2 0.8], 1, 'MKS',...                            
 %                   refpropPath, 1)                                 
 %    Output is given as a 3x2 array: h1 = [295.6969  295.6903                             
@@ -183,9 +183,9 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
         SupportedSpecFlags   = {'NBP', 'CRIT', 'TRIP', 'DSAT', 'HSAT', 'HSAT2', 'SSAT', 'SSAT2', 'SSAT3'};
         UnsupportedSpecFlags = {'FLAGS', 'EOSMIN', 'EOSMAX', 'SETREF', 'SETREFOFF', 'PATH', 'SATSPLN'};
     
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Checking ProprReq Validity %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Checking PropReq Validity %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % UnsupportedPropFlags = {'ALTID', 'CAS#', 'CHEMFORM', 'SYNONYM', 'FAMILY', 'FLDNAME', 'HASH', 'INCHI',...
         %                         'INCHIKEY', 'LONGNAME', 'SAFETY', 'NAME', 'NCOMP', 'UNNUMBER', 'DOI_EOS', 'DOI_VIS',...
         %                         'DOI_TCX', 'DOI_STN', 'DOI_DIE', 'DOI_MLT', 'DOI_SBL', 'WEB_EOS', 'WEB_VIS', 'WEB_TCX',...
@@ -231,7 +231,7 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
             % and must be different from each other             %
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             if strcmp(Spec, '  ')
-               % no-op (Two blank spaces allows for critical and triple point reqs.)
+               % no-op (Two blank spaces allows for critical and triple point reqs)
             elseif (    (~(    any(strcmpi(Spec(1), PossibleSpecs))    ...
                             && any(strcmpi(Spec(2), PossibleSpecs)) ) )...
                      || (          strcmpi(Spec(1), Spec(2)      )    ) )
@@ -298,9 +298,9 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
         PropReq = strrep(strrep(PropReq, "["), "]");
     end
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % only split the string if there are delimters %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % only split the string if there are delimiters %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if contains(PropReq, ',')
         numReqs = numel(strsplit(PropReq, ","));
     else

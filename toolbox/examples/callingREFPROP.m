@@ -333,3 +333,55 @@ disp("d_max = " + num2str(d_max) + newline);
 % d_min = 998.2072
 % d_max = 0.4063
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Request the pressure of Nitrogen at various melting temperatures %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Pmelt = getFluidProperty(libLoc, "P", "TMELT", (-195:1:-170)+273.15, "", 1, "Nitrogen", 1, 1, "MKS");
+disp("Melting pressures (kPa) at various temperatures (K) for Nitrogen")
+disp("Output:")
+disp(Pmelt)
+% output is given as:
+% Pmelt =
+% 
+% 1.0e+05 *
+% 
+% 0.7441
+% 0.7981
+% 0.8526
+% 0.9077
+% 0.9633
+% 1.0195
+% 1.0762
+% 1.1334
+% 1.1912
+% 1.2495
+% 1.3083
+% 1.3677
+% 1.4276
+% 1.4880
+% 1.5489
+% 1.6104
+% 1.6723
+% 1.7348
+% 1.7979
+% 1.8614
+% 1.9255
+% 1.9901
+% 2.0552
+% 2.1208
+% 2.1869
+% 2.2535
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Request the Sublimation temperature of water at various pressures %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Tsubl = getFluidProperty(libLoc, "T", "PSUBL", [611.2, 195.8, 76.0, 101.325], "", 1, "Water", 1, 1, "MOLAR BASE SI");
+disp("Sublimation temperatures (K) at various pressures (Pa) for Water")
+disp("Output:")
+disp(Tsubl)
+
+% Tsubl = 4×1
+% 273.1509
+% 259.9999
+% 249.9983
+% 252.9552
