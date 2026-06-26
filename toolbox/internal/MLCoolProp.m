@@ -21,9 +21,9 @@ classdef MLCoolProp < handle
     %  libMethod         = CHAR with the CoolProp library method to call - almost always it should be PropsSI
     %  keepLibraryLoaded = [CoolProp optional (name, value) pair] (logical) defaults to false -> load and unload
     %                                                                                             CoolProp library with 
-    %                                                                                             every funciton call
+    %                                                                                             every function call
     %                                                                                    true -> keep library loaded for
-    %                                                                                            multiple funciton calls
+    %                                                                                            multiple function calls
     %                       NOTE: user should unload the library when finished: in the MATLAB command line type
     %                                                                           unloadlibrary('CoolProp')
     %
@@ -160,7 +160,7 @@ classdef MLCoolProp < handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % ensure Fluid Composition sums to 1 %
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if ~isbetween(sum(FluidComposition), 0.99999999, 1.000000001)
+            if ((sum(FluidComposition) < 0.99999999) || (sum(FluidComposition) > 1.000000001))
                 error(   "Composition must contain positive values between 0 and 1, which sum to 1. "...
                        + "Currently, your composition [" + num2str(FluidComposition) + "] sums to " ...
                        + num2str(sum(FluidComposition)));
@@ -219,17 +219,24 @@ classdef MLCoolProp < handle
             end
         
             if strcmp(obj.libMethod, 'PropsSI')
+                if startsWith(outputVars, "[")
+                    outputVars = strrep(strrep(outputVars, "["), "]");
+                end
+                outputVars = strsplit(outputVars, ",");
+
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % loop through the two input values %
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 for ix1 = 1:numel(Input1Val)
                     for ix2 = 1:numel(Input2Val)
-                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                        % get the value from CoolProp %
-                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                        outVals(ix1, ix2) = obj.getOutputValue(outputVars, inputPair=inputPair,...
-                                                               input1=Input1Val(ix1), input2=Input2Val(ix2),...
-                                                               Species=Fluid);
+                        for ix3 = 1:numel(outputVars)
+                            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                            % get the value from CoolProp %
+                            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                            outVals(ix1, ix2, ix3) = obj.getOutputValue(outputVars{ix3}, inputPair=inputPair,...
+                                                                        input1=Input1Val(ix1), input2=Input2Val(ix2),...
+                                                                        Species=Fluid);
+                        end % end loop over output properties (ix3)
                     end % end loop over input property 2 values (ix2)
                 end % end loop over input property 1 values (ix1)
             elseif strcmp(obj.libMethod, 'Props1SI')
@@ -369,7 +376,7 @@ classdef MLCoolProp < handle
                                         inputPair{2}, opts.input2, opts.Species);
                 otherwise
                     error("Time to handle the requested library method: " + obj.libMethod);
-            end % ene switch over library method
+            end % end switch over library method
             obj.coolpropErrorCheck(opts.Species)
         end % end method makeLibCall
         

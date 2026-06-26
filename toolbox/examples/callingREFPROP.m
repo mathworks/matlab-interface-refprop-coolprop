@@ -67,3 +67,269 @@ h1 = getFluidProperty(libLoc, 'H', 'T', 300, 'P', 101.325, 'GLFCOAST.MIX', 1, 1,
 disp("h1 = ");
 disp(h1);
 % Output is given as a 1x1 array: h1 = 888684.3501
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get Critical point of water - The output is the desired value,        %
+% first input is CRIT, second input is empty, input values don't matter %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tCrit = getFluidProperty(libLoc, "T", "CRIT", 1, "", 1, "Water", 1, 1, "MKS");
+disp("Critical Temperature = ")
+disp(tCrit);
+% Output is given as 1x1 array: tCrit = 647.0960
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get Triple point of water - The output is the desired value,          %
+% first input is TRIP, second input is empty, input values don't matter %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tTrip = getFluidProperty(libLoc, "T", "TRIP", 0, "", nan, "Water", 1, 1, "MKS");
+disp("Triple Point Temperature = ");
+disp(tTrip);
+% Output is given as 1x1 array: tTrip = 273.1600
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get the melting point of water - The output is the desired value, %
+% the first input is the property value to find the melting value,  %
+% the second input is empty and its value doesn't matter            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+pMelt = getFluidProperty(libLoc, "P", "TMELT", 274, "", 328991, "Water", 1, 1, "MKS");
+disp("Melting pressure at 274K = ")
+disp(pMelt)
+% Output is given as 1x1 array: pMelt = 640329.17765911
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% To select a specific branch, use the special characters on the last input value %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sPH = getFluidProperty(libLoc, "S", "P", 300, "H", [100, 800], "Water", 1, 1, "MKS");
+disp("Entropy:")
+disp(sPH);
+% Output is given as 1X2 array: sPH = [0.349994032961696, 2.25836610560853]
+
+sPH = getFluidProperty(libLoc, "S", "P", 300, "H<", [100, 800], "Water", 1, 1, "MKS");
+disp("Entropy:")
+disp(sPH);
+% Output is given as 1X2 array: sPH = [0.349994052255697, 2.22177013280536]
+
+sPH = getFluidProperty(libLoc, "S", "P", 300, "H>", [100, 800], "Water", 1, 1, "MKS");
+disp("Entropy:")
+disp(sPH);
+% Output is given as 1X2 array: sPH = [0.34999403295267, 2.221770408808]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% request multiple output properties %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS');
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [  84.0073008508034
+%                                        2730.30138592574
+%                                        3012.04786856515]
+%                                  s1 = [   0.29646283622616
+%                                           7.49620215239088
+%                                           8.09900566147266]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% request multiple output properties with the output given as a struct %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                          outputAsStruct=true);
+disp("Output")
+disp(outVal)
+disp(newline + "Enthalpy:")
+disp(outVal.H)
+disp(newline + "Entropy:")
+disp(outVal.S)
+disp(newline + "Density:")
+disp(outVal.D)
+
+% output is given a struct with fields: outVal = 
+%                                                 H: [3×1 double]
+%                                                 S: [3×1 double]
+%                                                 D: [3×1 double]
+%                                                 T: [293.15 400 542]
+%                                                 P: 101.325
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% change the reference set point %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='ASH');
+disp("Using ASHRE reference point: h,s=0 @ -40C")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [  84.0073008508034
+%                                        2730.30138592574
+%                                        3012.04786856515]
+%                                  s1 = [   0.29646283622616
+%                                           7.49620215239088
+%                                           8.09900566147266]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='NBP');
+disp("Using Normal Boiling Point(s) reference point: h,s=0 @ normal boiling points")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [-335.050432246858
+%                                        2311.24365282808
+%                                        2592.99013546748]
+%                                  s1 = [  -1.01045797632444
+%                                           6.18928133984027
+%                                           6.79208484892206]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='IIR');
+disp("Using IIR Convention reference point: h=200kJ/kg, s=1 kJ/kg-K for sat. liquid @ 0C")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [ 283.91175099254
+%                                        2930.20583606748
+%                                        3211.95231870688]
+%                                  s1 = [   1.29660818416891
+%                                           8.49634750033363
+%                                           9.09915100941541]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='DEF');
+disp("Using default reference point from fluid file. Compare to the output without hrf option used.")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [  84.0073008508034
+%                                        2730.30138592574
+%                                        3012.04786856515]
+%                                  s1 = [   0.29646283622616
+%                                           7.49620215239088
+%                                           8.09900566147266]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+                                referenceState='OTH;10.0;1.0;323.15;101.325');
+disp("Using User-defined reference point for real gas: H0=10.0 J/mol, S0=1.0 J/mol-K, T0 = 323.15K, P0 = 101.325kPa")
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy:")
+disp(s1)
+disp(newline + "Density:")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [-124.856106424922
+%                                        2521.43797865002
+%                                        2803.18446128942]
+%                                  s1 = [  -0.351796093457317
+%                                           6.8479432227074
+%                                           7.45074673178918]
+%                                  d1 = [ 998.20715046745
+%                                           0.554943903490502
+%                                           0.406296343124391]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% request multiple output properties with the output given as a struct %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', outputAsStruct=true);
+disp("Output")
+disp(outVal)
+disp(newline + "Enthalpy:")
+disp(outVal.H)
+disp(newline + "Entropy:")
+disp(outVal.S)
+disp(newline + "Density:")
+disp(outVal.D)
+
+% output is given a struct with fields: outVal = 
+%                                                 H: [3×1 double]
+%                                                 S: [3×1 double]
+%                                                 D: [3×1 double]
+%                                                 T: [293.15 400 542]
+%                                                 P: 101.325
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% keep the REFPROP library loaded and skip input checking for multiple calls where vectorizing does not make sense %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tic
+for ix = 1:100
+    h_min = getFluidProperty(libLoc,'H', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=false);
+    h_max = getFluidProperty(libLoc,'H', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=false);
+    s_min = getFluidProperty(libLoc,'S', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=false);
+    s_max = getFluidProperty(libLoc,'S', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=false);
+    d_min = getFluidProperty(libLoc,'D', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=false);
+    d_max = getFluidProperty(libLoc,'D', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=false);
+end
+t1 = toc;
+disp("Time to query 600 individual values while loading and unloading the library and running input checks:")
+disp(num2str(t1) + " seconds")
+disp("h_min = " + num2str(h_min));
+disp("h_max = " + num2str(h_max) + newline);
+disp("s_min = " + num2str(s_min));
+disp("s_max = " + num2str(s_max) + newline);
+disp("d_min = " + num2str(d_min));
+disp("d_max = " + num2str(d_max) + newline);
+% output is given as:
+% Time to query 600 individual values while loading and unloading the library:
+% 4.3759 seconds
+% h_min = 84.0073
+% h_max = 3012.0479
+% s_min = 0.29646
+% s_max = 8.099
+% d_min = 998.2072
+% d_max = 0.4063
+
+tic
+for ix = 1:100
+    h_min = getFluidProperty(libLoc,'H', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=true);
+    h_max = getFluidProperty(libLoc,'H', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=true);
+    s_min = getFluidProperty(libLoc,'S', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=true);
+    s_max = getFluidProperty(libLoc,'S', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=true);
+    d_min = getFluidProperty(libLoc,'D', 'T', 293.15, 'P', 101.325, 'Water', 1, rapidMode=true);
+    d_max = getFluidProperty(libLoc,'D', 'T', 542.0,  'P', 101.325, 'Water', 1, rapidMode=true);
+end
+t2 = toc;
+
+disp("Time to query 600 individual values while keeping the library loaded and skipping input checks:")
+disp(num2str(t2) + " seconds")
+disp("h_min = " + num2str(h_min));
+disp("h_max = " + num2str(h_max) + newline);
+disp("s_min = " + num2str(s_min));
+disp("s_max = " + num2str(s_max) + newline);
+disp("d_min = " + num2str(d_min));
+disp("d_max = " + num2str(d_max) + newline);
+% output is given as:
+% Time to query 600 individual values while keeping the library loaded:
+% 0.060821 seconds
+% h_min = 84.0073
+% h_max = 3012.0479
+% s_min = 0.29646
+% s_max = 8.099
+% d_min = 998.2072
+% d_max = 0.4063
+

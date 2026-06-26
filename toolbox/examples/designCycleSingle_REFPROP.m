@@ -7,6 +7,9 @@
 % Set up Library and Units
 libLoc = 'C:\Program Files (x86)\REFPROP\';   % Location for REFPROP
 
+% show contour labels on final TS and PH plots
+showContourLabels = false;
+
 % default: 0.01-6 MPa, 100-500 kJ/kg, R134a.
 % English: 1.5-950 psi, 40-220 Btu/lbm
 Fluid   = "R134a";
@@ -23,14 +26,14 @@ H_unit  = "kJ/kg";
 T_sat_cond = 60; % saturation temperature of condensation degC
 T_sat_evap = 5;  % saturation temperature of evaporation  degC
 T_sc       = 5;  % temperature of subcooled liquid at compressor outlet degC
-T_sh       = 5;  % temperature at evaporator outlet/compressor inlet  degC
+T_sh       = 5;  % temperature at evaporator outlet/compressor inlet    degC
 T_unit     = "degC";
 eta_s      = 0.6; % viscosity of saturation
 
 %% Plot PH & TS Diagrams
 
 % Plot PH & TS Diagrams in custom units
-[hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_min, H_max, P_unit, H_unit, T_unit);
+[hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_min, H_max, P_unit, H_unit, T_unit, showContourLabels);
 
 % Use light mode for PH & TS diagrams. Doesn't look good in dark mode.
 if ~isMATLABReleaseOlderThan("R2025a")

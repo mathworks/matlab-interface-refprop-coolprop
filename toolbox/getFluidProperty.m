@@ -32,6 +32,34 @@
 %                                                                                            multiple function calls
 %                       NOTE: user should unload the library when finished: in the MATLAB command line type
 %                                                                           unloadlibrary('CoolProp')
+% outputAsStruct      = [optional (name value) pair] (boolean) defaults to false -> require a number of output 
+%                                                                                   variables equal to the number of 
+%                                                                                   properties specified in 
+%                                                                                   requestedProperty value 
+%                                                                          true  -> single output variable which is a
+%                                                                                   structure whose fields are the same
+%                                                                                   name as each property specified in 
+%                                                                                   requestedProperty.
+% referenceState     = [REFPROP optional (name, value) pair] (char) Reference state definition - if this is unspecified
+%                                                                    REFPROP uses the default definition in the fluid 
+%                                                                    file. Accepted options for reference states by
+%                                                                    REFPROP: 'ASH' for ASHRE convention h,s=0 @ -40C, 
+%                                                                             'NBP' h,s=0 at normal boiling point(s)
+%                                                                             'IIR' for IRR convention h=200kJ/kg, 
+%                                                                                   s=1 kJ/kg-K for sat. liquid @ 0C 
+%                                                                             'DEF' for default values in fluid file
+%                                                                             'OTH;H0;S0;T0;P0' for real gas state
+%                                                                             'OT0;H0;S0;T0;P0' for ideal-gas state
+%                                                                                    where H0, S0, T0, P0 are the 
+%                                                                                    actual numbers specified by user
+%                                                                                    e.g. 'OTH;10.0;1.0;323.15;101.325'
+%                                                                                    H0 in J/mol, S0 in J/mol-K, T0 in K
+%                                                                                    P0 in kPa
+% RapidMode           = LOGICAL value (false to suppress, true to show) Rapid mode - when true, skip input checks and only
+%                                                                                load REFPROP DLL once, do not unload it
+%                               CAUTION!!!! The user needs to take care with their inputs!!!
+%                               If your inputs to REFPROP or not correct, MATLAB will crash!
+%                               Suppress rapid mode to debug issues.
 %
 % See REFPROP documentation (https://trc.nist.gov/refprop/REFPROP.PDF) and CoolProp documentation 
 % (http://www.coolprop.org/coolprop/HighLevelAPI.html#table-of-string-inputs-to-propssi-function) for allowed values 
@@ -76,7 +104,50 @@
 %    Get specific enthalpy for Gulf Coast predefined mixture. Code detects .mix extension                          
 %    in the input species string.                                                                                  
 %    h = getFluidProperty(libLoc, 'H', 'T', 300, 'P', 101.325, 'GLFCOAST.MIX', 1, 1, 'MASS BASE SI')               
-%    Output is given as a 1x1 array: h1 = 888684.3501                                                              
+%    Output is given as a 1x1 array: h1 = 888684.3501     
+%
+%    Get multiple properties for a give fluid:
+%       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
+%       Separate the output properties using commas and no spaces
+%    [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS')
+% 
+%    output is given as three 3x1 arrays: h1 = [  84.0073008508034
+%                                               2730.30138592574
+%                                               3012.04786856515]
+%                                         s1 = [   0.29646283622616
+%                                                  7.49620215239088
+%                                                  8.09900566147266]
+%                                         d1 = [ 998.20715046745
+%                                                  0.554943903490502
+%                                                  0.406296343124391]
+%
+%    Get multiple properties for a give fluid:
+%       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
+%       Separate the output properties using commas and no spaces
+%       use outputAsStruct flag to receive the output as a struct whose field names match the output properties
+%       requested - this option will also put the input values as fields in the structure
+%    outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS', outputAsStruct=true)
+%
+%    output is given a struct with fields: outVal = 
+%                                                    H: [3×1 double]
+%                                                    S: [3×1 double]
+%                                                    D: [3×1 double]
+%                                                    T: [293.15 400 542]
+%                                                    P: 101.325
+%
+%    Set the reference state to the ASHRE state where h,s = 0 at -40C
+%    [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101.325, 'Water', 1, 1, 'MKS',...
+%                                    referenceState='ASH');
+%
+%    output is given as 3 3x1 arrays: h1 = [ -12.1779688679777
+%                                           2634.11611620696
+%                                           2915.86259884637]
+%                                     s1 = [  16.5559971813317
+%                                             23.7557364974964
+%                                             24.3585400065782]
+%                                     d1 = [ 998.20715046745
+%                                              0.554943903490502
+%                                              0.406296343124391]
 %
 % EXAMPLES for CoolProp:                                                                                                
 %    libLoc = 'C:\Program Files\CoolProp\';                                                                        
@@ -124,6 +195,37 @@
 %    h_min = getFluidProperty(coolPropLib,'H', 'T', T_min, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
 %    h_max = getFluidProperty(coolPropLib,'H', 'T', T_max, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
 %
+%
+%    Get multiple properties for a given fluid:
+%       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
+%       Separate the output properties using commas and no spaces
+%    [h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
+%                                    keepLibraryLoaded=true)
+% 
+%    output is given as three 3x1 arrays: h1 = [  84007.3008506628
+%                                               2730301.38592019
+%                                               3012047.86854244]
+%                                         s1 = [    296.46283622518
+%                                                  7496.20215237541
+%                                                  8099.00566142102]
+%                                         d1 = [    998.207150467928
+%                                                     0.554943903490499
+%                                                     0.40629634312439]
+%
+%    Get multiple properties for a given fluid:
+%       Enthalpy, Entropy, and Density of Water at three different temperatures and one pressure
+%       Separate the output properties using commas and no spaces
+%       use outputAsStruct flag to receive the output as a struct whose field names match the output properties
+%       requested - this option will also put the input values as fields in the structure
+%    outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
+%                              keepLibraryLoaded=true, outputAsStruct=true)
+%
+%    output is given a struct with fields: outVal = 
+%                                                    H: [3×1 double]
+%                                                    S: [3×1 double]
+%                                                    D: [3×1 double]
+%                                                    T: [293.15 400 542]
+%                                                    P: 101.325
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Copyright 2019 - 2025 The MathWorks, Inc.
@@ -133,26 +235,60 @@
 % Rev 1: Original version
 % K. McGarrity
 % 29 JAN 2025
+%
+% Rev 2: Added multi-outputs 
+%        Added referenceState for REFPROP calls
+% 9 SEP 2025
 
 function requestedPropertyValue = getFluidProperty(libraryLocation, requestedProperty,... 
                                                    inputProperty1, inputProperty1Value,...
                                                    inputProperty2, inputProperty2Value, fluid,...
                                                    fluidComposition, massOrMolar, desiredUnits,...
                                                    opts)
-    arguments
-        libraryLocation        (1, :) {mustBeText}
-        requestedProperty      (1, :) {mustBeText}
-        inputProperty1         (1, :) {mustBeText}
+    arguments (Input)
+        libraryLocation        (1, :) char
+        requestedProperty      (1, :) char
+        inputProperty1         (1, :) char
         inputProperty1Value    (1, :) double
-        inputProperty2         (1, :) {mustBeText}
+        inputProperty2         (1, :) char
         inputProperty2Value    (1, :) double
-        fluid                  (1, :) string
-        fluidComposition       (1, :) double       = 1; % assume single species - only if numel(fluid) > 1 will user need to provide
-        massOrMolar            (1, 1) double       = 0;
-        desiredUnits           (1, :) {mustBeText} = "MKS";
-        opts.keepLibraryLoaded (1, 1) logical      = false;
+        fluid                  (1, :) char
+        fluidComposition       (1, :) double  = 1;     % assume single species - only if numel(fluid) > 1 will user need to provide
+        massOrMolar            (1, 1) double  = 0;     % REFPROP ONLY
+        desiredUnits           (1, :) char    = 'MKS'; % REFPROP ONLY
+        opts.outputAsStruct    (1, 1) logical = false; % both
+        opts.keepLibraryLoaded (1, 1) logical = false; % CoolProp ONLY
+        opts.referenceState    (1, :) char    = '';    % REFPROP ONLY
+        opts.rapidMode         (1, 1) logical = false; % REFPROP ONLY - set to true to skip input checks - this will signficantly speed up interations
     end
 
+    arguments (Output, Repeating)
+        requestedPropertyValue
+    end
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % get the number of requested properties %
+    % properties are comma separated         %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    numReqProps = numel(regexp(requestedProperty, ',')) + 1;
+
+    %%%%%%%%%%%%%%%%%%%%%%
+    % if checking inputs %
+    %%%%%%%%%%%%%%%%%%%%%%
+    if ~opts.rapidMode
+        tmpOut = char(regexprep(requestedProperty, '[\w,]', ''));
+        if ~isempty(tmpOut)
+            error("Please specify requested properties as a comma separated list without any spaces, e.g., 'H,S,D'.")
+        end
+    
+        if (opts.outputAsStruct == false) && (nargout ~= numReqProps)
+            error(  "You specified " + numel(requestedProperty) + " properties to output but "...
+                  + "only provided " + nargout + " output variables. Please specify one output variable per property "...
+                  + "or set the output to be an array.");
+        end
+    end % end if checking inputs
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % if using REFPROP, else CoolProp %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,20 +296,15 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % REFPROP expects as single input string %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        inputProps = string(inputProperty1) + string(inputProperty2);
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % we can probably remove this input from the function call someday %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        DebugOutput = false;
+        inputProps = [inputProperty1 inputProperty2];
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % MLrefprop takes care of all the input value checks, we shouldn't have to do anything %
         % unless we want the user to be able to specify multiple output properties or fluids   %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        requestedPropertyValue = MLrefprop(requestedProperty, inputProps, inputProperty1Value, inputProperty2Value,...
-                                           fluid, massOrMolar, fluidComposition, desiredUnits, libraryLocation,...
-                                           DebugOutput);
+        tmpReqPropVal = MLrefprop(requestedProperty, inputProps, inputProperty1Value, inputProperty2Value,...
+                                  fluid, massOrMolar, fluidComposition, desiredUnits, libraryLocation,...
+                                  opts.referenceState, opts.rapidMode, false);
     else
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % shape the output to match REFPROP when given input proprty value arrays, we shouldn't have to do %
@@ -181,8 +312,26 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         cpObj = MLCoolProp(libraryLocation, opts.keepLibraryLoaded);
 
-        requestedPropertyValue = cpObj.getCoolPropValues(requestedProperty, inputProperty1, inputProperty1Value,...
-                                                         inputProperty2, inputProperty2Value, fluid, fluidComposition);
+        tmpReqPropVal = cpObj.getCoolPropValues(requestedProperty, inputProperty1, inputProperty1Value,...
+                                                inputProperty2, inputProperty2Value, fluid, fluidComposition);
 
     end % end if REFPROP, else CoolProp
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % reshape the output as a structure or independent variables for each of the output properties requested %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if opts.outputAsStruct == true
+        propIx = regexp(requestedProperty, '\w');
+        for nx = 1:numReqProps
+            RPV.(requestedProperty(propIx(nx))) = tmpReqPropVal(:, :, nx);
+        end % end loop over requested properties (nx)
+        RPV.(inputProperty1) = inputProperty1Value;
+        RPV.(inputProperty2) = inputProperty2Value;
+        requestedPropertyValue = {RPV};
+    else
+        requestedPropertyValue = cell(numReqProps, 1);
+        for nx = 1:numReqProps
+            requestedPropertyValue{nx} = tmpReqPropVal(:, :, nx);
+        end % end loop over requested properties (nx)
+    end % end if outputting as struct, else individual variables
 end % end function getFluidProperty

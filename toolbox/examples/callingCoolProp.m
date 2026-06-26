@@ -96,7 +96,6 @@ for ix = 1:10
     h_max = getFluidProperty(libLoc,'H', 'T', T_max, 'P', 800000, 'R410A', 1, keepLibraryLoaded=true);
 end
 t2 = toc;
-unloadlibrary('CoolProp')
 
 disp("Time to query 40 individual values while keeping the library loaded:")
 disp(num2str(t2) + " seconds")
@@ -111,3 +110,69 @@ disp("h_max = " + num2str(h_max));
 % T_max = 500
 % h_min = 97296.6733
 % h_max = 650989.485
+
+%%%%%%%%%%%%%%%%%%%%%%
+% unload the library %
+%%%%%%%%%%%%%%%%%%%%%%
+unloadlibrary('CoolProp')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get Critical point of water - The output is the desired value,        %
+% first input is CRIT, second input is empty, input values don't matter %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tCrit = getFluidProperty(libLoc, "TCRIT", "", 1, "", 1, "Water", 1);
+disp("Critical Temperature = ")
+disp(tCrit);
+% Output is given as 1x1 array: tCrit = 647.0960
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get Triple point of water - The output is the desired value,          %
+% first input is TRIP, second input is empty, input values don't matter %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tTrip = getFluidProperty(libLoc, "TTRIPLE", "", 0, "", nan, "Water", 1);
+disp("Triple Point Temperature = ");
+disp(tTrip);
+% Output is given as 1x1 array: tTrip = 273.1600
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% request multiple output properties %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[h1, s1, d1] = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water',...
+                                keepLibraryLoaded=true);
+disp("Enthalpy:")
+disp(h1)
+disp(newline + "Entropy")
+disp(s1)
+disp(newline + "Density")
+disp(d1)
+% output is given as 3 3x1 arrays: h1 = [  84007.3008506628
+%                                        2730301.38592019
+%                                        3012047.86854244]
+%                                  s1 = [    296.46283622518
+%                                           7496.20215237541
+%                                           8099.00566142102]
+%                                  d1 = [    998.207150467928
+%                                              0.554943903490499
+%                                              0.40629634312439]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% request multiple output properties with the output given as a struct %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+outVal = getFluidProperty(libLoc, 'H,S,D', 'T', [293.15 400.0 542.0], 'P', 101325, 'Water', keepLibraryLoaded=true,...
+                          outputAsStruct=true);
+disp("Output")
+disp(outVal)
+disp(newline + "Enthalpy:")
+disp(outVal.H)
+disp(newline + "Entropy:")
+disp(outVal.S)
+disp(newline + "Density:")
+disp(outVal.D)
+
+% output is given a struct with fields: outVal = 
+%                                                 H: [3×1 double]
+%                                                 S: [3×1 double]
+%                                                 D: [3×1 double]
+%                                                 T: [293.15 400 542]
+%                                                 P: 101.325
+
