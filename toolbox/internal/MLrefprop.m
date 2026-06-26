@@ -66,11 +66,11 @@
 
 % History:
 %
-% Rev 7: Use arguements to ensure the correct data type is coming through 
+% Rev 7: Use arguments to ensure the correct data type is coming through 
 % K. McGarrity
 % 29 JAN 2025
 %
-% Rev 6: Try/catch and error hanldling. Add mixture capability.
+% Rev 6: Try/catch and error handling. Add mixture capability.
 %
 % Rev 5: Updating documentation typos
 % K. McGarrity
@@ -111,14 +111,14 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
     
     PossibleSpecs  = {'T', 'P', 'D', 'E', 'H', 'S', 'Q'};   % Temperature, Pressure, Density, Energy, Enthalpy, Entropy, Quality
     AddonsAfter1   = {'MELT', 'SUBL'};                      % Melting or sublimation point given the input properties
-    AddonsAfter2   = {'L', '>', '<', 'V'};                  % Single phase liquid (L, >), Single Phase Vaopor (<, V)
+    AddonsAfter2   = {'L', '>', '<', 'V'};                  % Single phase liquid (L, >), Single Phase Vapor (<, V)
 
     SupportedSpecFlags   = {'NBP', 'CRIT', 'TRIP', 'DSAT', 'HSAT', 'HSAT2', 'SSAT', 'SSAT2', 'SSAT3'};
     UnsupportedSpecFlags = {'FLAGS', 'EOSMIN', 'EOSMAX', 'SETREF', 'SETREFOFF', 'PATH', 'SATSPLN'};
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Checking ProprReq Validity %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Checking PropReq Validity %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % UnsupportedPropFlags = {'ALTID', 'CAS#', 'CHEMFORM', 'SYNONYM', 'FAMILY', 'FLDNAME', 'HASH', 'INCHI',...
     %                         'INCHIKEY', 'LONGNAME', 'SAFETY', 'NAME', 'NCOMP', 'UNNUMBER', 'DOI_EOS', 'DOI_VIS',...
     %                         'DOI_TCX', 'DOI_STN', 'DOI_DIE', 'DOI_MLT', 'DOI_SBL', 'WEB_EOS', 'WEB_VIS', 'WEB_TCX',...

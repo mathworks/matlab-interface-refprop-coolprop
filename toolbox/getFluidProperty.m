@@ -16,7 +16,7 @@
 %                                e.g., "Water", "Ethanol", "Nitrogen;Oxygen;Hydrogen;Water"
 %                                NOTE: if the user defines their own fluid, the species should be listed out as in the
 %                                      last example above using only a semicolon (;) to separate the species
-% fluidComposition    = (double) array of size 1xnumSpec species fraction where 1 <= numSpec <= 20, whose values must 
+% fluidComposition    = (double) array of size 1 x numSpec species fraction where 1 <= numSpec <= 20, whose values must 
 %                                sum to 1; numSpec must match the number of species in the fluid
 %                                e.g., if fluid = "Water", (numSpec = 1)
 %                                         fluidComposition = 1;
@@ -27,9 +27,9 @@
 %                                             e.g., MKS, MASS BASE SI, etc.          
 % keepLibraryLoaded   = [CoolProp optional (name, value) pair] (logical) defaults to false -> load and unload CoolProp 
 %                                                                                             library with every 
-%                                                                                             funciton call
+%                                                                                             function call
 %                                                                                    true -> keep library loaded for
-%                                                                                            multiple funciton calls
+%                                                                                            multiple function calls
 %                       NOTE: user should unload the library when finished: in the MATLAB command line type
 %                                                                           unloadlibrary('CoolProp')
 %
@@ -66,7 +66,7 @@
 %    h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Oxygen;Nitrogen', [0.2, 0.8], 1, 'MKS')        
 %    Output is given as a 1x1 array: h1 = 295.6969                                                                 
 %                                                                                                                  
-%    Get sepcific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol (debug flag is ON)                          
+%    Get specific enthalpy for Oxygen/Nitrogen mixture at STP in J/mol (debug flag is ON)                          
 %    h1 = getFluidProperty(libLoc, 'H', 'T', [293.15 400.00 542.0], 'P', [101.325 104.1], ...                      
 %                          'Nitrogen;Oxygen;Hydrogen;Water', [0.71, 0.16, 0.1, 0.03], 1, 'MKS')                    
 %    Output is given as a 3x2 array: h1 = [295.6969  295.6903                                                      
@@ -153,9 +153,9 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         opts.keepLibraryLoaded (1, 1) logical      = false;
     end
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % if useing REFPROP, else CoolProp %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % if using REFPROP, else CoolProp %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if contains(libraryLocation, "REFPROP", "IgnoreCase", true)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % REFPROP expects as single input string %
