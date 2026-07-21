@@ -276,12 +276,12 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
     % if checking inputs %
     %%%%%%%%%%%%%%%%%%%%%%
     if ~opts.rapidMode
-        tmpOut = char(regexprep(requestedProperty, '[\w,]', ''));
+        tmpOut = char(regexprep(requestedProperty, '\w+(\(\d+\))?,?', ''));
         if ~isempty(tmpOut)
             error("Please specify requested properties as a comma separated list without any spaces, e.g., 'H,S,D'.")
         end
     
-        if (opts.outputAsStruct == false) && (nargout ~= numReqProps)
+        if (opts.outputAsStruct == false) && ((nargout ~= numReqProps))
             error(  "You specified " + numel(requestedProperty) + " properties to output but "...
                   + "only provided " + nargout + " output variables. Please specify one output variable per property "...
                   + "or set the output to be an array.");
