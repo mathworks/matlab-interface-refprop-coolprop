@@ -385,3 +385,46 @@ disp(Tsubl)
 % 259.9999
 % 249.9983
 % 252.9552
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% using parenthetical hOut options - looking for mass fraction of vapor for each constituent part of the mixture %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fluidString = 'R32;R125;R1234yf;R134a;R1234ze(E)';
+composition = [0.26; 0.26; 0.2; 0.21; 0.07];
+
+x_R32       = getFluidProperty(libLoc, 'xmassvap(1)', 'p', 74, 'Q', 0.2, fluidString, composition, 1, "MKS");
+x_R125      = getFluidProperty(libLoc, 'xmassvap(2)', 'p', 74, 'Q', 0.2, fluidString, composition, 1, "MKS");
+x_R1234yf   = getFluidProperty(libLoc, 'xmassvap(3)', 'p', 74, 'Q', 0.2, fluidString, composition, 1, "MKS");
+x_R134a     = getFluidProperty(libLoc, 'xmassvap(4)', 'p', 74, 'Q', 0.2, fluidString, composition, 1, "MKS");
+x_R1234zeE  = getFluidProperty(libLoc, 'xmassvap(5)', 'p', 74, 'Q', 0.2, fluidString, composition, 1, "MKS");
+
+disp("Mass fraction of vapor for each consituient")
+disp("Output:")
+disp("R32:        " + num2str(x_R32))
+disp("R125:       " + num2str(x_R125))
+disp("R1234yf:    " + num2str(x_R1234yf))
+disp("R134a:      " + num2str(x_R134a))
+disp("R1234ze(E): " + num2str(x_R1234zeE))
+
+% R32:        0.23941
+% R125:       0.4154
+% R1234yf:    0.18404
+% R134a:      0.12331
+% R1234ze(E): 0.037848
+
+[x_R32, x_R125, x_R1234yf, x_R134a, x_R1234zeE] = getFluidProperty(libLoc,...
+                                                     'xmassliq(1),xmassliq(2),xmassliq(3),xmassliq(4),xmassliq(5)',...
+                                                     'p', 74, 'Q', 0.2, fluidString, composition, 1, "MKS");
+disp(newline + "Mass fraction of liquid for each consituient")
+disp("Output:")
+disp("R32:        " + num2str(x_R32))
+disp("R125:       " + num2str(x_R125))
+disp("R1234yf:    " + num2str(x_R1234yf))
+disp("R134a:      " + num2str(x_R134a))
+disp("R1234ze(E): " + num2str(x_R1234zeE))
+
+% R32:        0.11455
+% R125:       0.29849
+% R1234yf:    0.24806
+% R134a:      0.24543
+% R1234ze(E): 0.093463

@@ -149,6 +149,23 @@
 %                                              0.554943903490502
 %                                              0.406296343124391]
 %
+%    Use parenthetical options for hOut
+%    fluidString = 'R32;R125;R1234yf;R134a;R1234ze(E)';
+%    composition = [0.26; 0.26; 0.2; 0.21; 0.07];
+%    x_R32       = getFluidProperty(libLoc, 'xmassvap(1)', 'p', 74, 'Q', 0.2, fluidString, composition, 1, "MKS");
+%    Output is given as a 1x1 array: x_R32 = 0.23941
+%
+%    [x_R32, x_R125, x_R1234yf, x_R134a, x_R1234zeE] = getFluidProperty(libLoc,...
+%                                                      'xmassliq(1),xmassliq(2),xmassliq(3),xmassliq(4),xmassliq(5)',...
+%                                                      'p', 74, 'Q', 0.2, fluidString, composition, 1, "MKS");
+%    Output is given as 5 1x1 arrays:
+%    x_R32      = 0.11455
+%    x_R125     = 0.29849
+%    x_R1234yf  = 0.24806
+%    x_R134a    = 0.24543
+%    x_R1234zeE = 0.093463
+%    
+%
 % EXAMPLES for CoolProp:                                                                                                
 %    libLoc = 'C:\Program Files\CoolProp\';                                                                        
 %                                                                                                                  
@@ -320,9 +337,10 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
     % reshape the output as a structure or independent variables for each of the output properties requested %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if opts.outputAsStruct == true
-        propIx = regexp(requestedProperty, '\w');
+        propIx = string(strsplit(requestedProperty, ","));
+        propIx = strrep(strrep(propIx, ")", ""), "(", "_");
         for nx = 1:numReqProps
-            RPV.(requestedProperty(propIx(nx))) = tmpReqPropVal(:, :, nx);
+            RPV.(propIx(nx)) = tmpReqPropVal(:, :, nx);
         end % end loop over requested properties (nx)
         
         RPV.(inputProperty1) = inputProperty1Value;
