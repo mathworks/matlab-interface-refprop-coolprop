@@ -35,12 +35,6 @@ eta_s      = 0.6; % viscosity of saturation
 % Plot PH & TS Diagrams in custom units
 [hfig_PH, hfig_TS] = plotStateDiagrams(libLoc, Fluid, P_min, P_max, H_min, H_max, P_unit, H_unit, T_unit, showContourLabels);
 
-% Use light mode for PH & TS diagrams. Doesn't look good in dark mode.
-if ~isMATLABReleaseOlderThan("R2025a")
-    hfig_PH.Theme.BaseColorStyle = 'light';
-    hfig_TS.Theme.BaseColorStyle = 'light';
-end
-
 %% States Calculation
 % Single-Stage Vapor Compression Cycle
 
@@ -66,8 +60,8 @@ H(1) = getFluidProperty(libLoc, 'H', 'P', P(1), 'T', unit_convert_SI(T_sat_evap 
 S(1) = getFluidProperty(libLoc, 'S', 'P', P(1), 'H', H(1), Fluid, 1, 1, 'MASS BASE SI'); % Entropy at evaporator exit
 H(2) = getFluidProperty(libLoc, 'H', 'P', P(2), 'S', S(1), Fluid, 1, 1, 'MASS BASE SI'); % Enthalpy after isentropic compression
 H(2) = (H(2)-H(1))/eta_s+H(1);  % Adjust enthalpy for isentropic efficiency
-H(3) = getFluidProperty(libLoc, 'H', 'P', P(3), 'Q', 1, Fluid, 1, 1, 'MASS BASE SI'); % Enthalpy in codenser, saturated vapor
-H(4) = getFluidProperty(libLoc, 'H', 'P', P(4), 'Q', 0, Fluid, 1, 1, 'MASS BASE SI'); % Enthalpy in codenser, saturated liquid
+H(3) = getFluidProperty(libLoc, 'H', 'P', P(3), 'Q', 1, Fluid, 1, 1, 'MASS BASE SI'); % Enthalpy in condenser, saturated vapor
+H(4) = getFluidProperty(libLoc, 'H', 'P', P(4), 'Q', 0, Fluid, 1, 1, 'MASS BASE SI'); % Enthalpy in condenser, saturated liquid
 H(5) = getFluidProperty(libLoc, 'H', 'P', P(5), 'T', unit_convert_SI(T_sat_cond - T_sc, T_unit, 'T', 1), Fluid, 1, 1, 'MASS BASE SI'); % Enthalpy at condenser outlet, subcooled liquid
 H(6) = H(5); % Enthalpy remain unchanged through expansion valve
 H(7) = getFluidProperty(libLoc, 'H', 'P', P(7), 'Q', 1, Fluid, 1, 1, 'MASS BASE SI'); % Enthalpy in evaporator, saturated vapor

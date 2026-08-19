@@ -136,7 +136,12 @@ end
     ax.YScale = "log";
 
     % Phase Line
-    plot([H_line0, H_crit, H_line1], [P_line0, P_crit, P_line1], 'k-', LineWidth=2)
+    if strcmp(hfig_PH.Theme.BaseColorStyle, "dark")
+        colorMark = "w-";
+    else
+        colorMark = "b-";
+    end
+    plot([H_line0, H_crit, H_line1], [P_line0, P_crit, P_line1], colorMark, LineWidth=2)
     hold off
 
     % Labels
@@ -162,7 +167,12 @@ end
     ax.YScale = "linear";
 
     % Phase Line
-    plot([S_line0, S_crit, S_line1], [T_line0, T_crit, T_line1], 'k-', LineWidth=2)
+    if strcmp(hfig_TS.Theme.BaseColorStyle, "dark")
+        colorMark = "w-";
+    else
+        colorMark = "b-";
+    end
+    plot([S_line0, S_crit, S_line1], [T_line0, T_crit, T_line1], colorMark, LineWidth=2)
     hold off
 
     % Labels
