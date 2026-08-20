@@ -152,8 +152,11 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % add the remaining vectors to the LUT %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    obj.LUT.x_liq   = x_liq;
-    obj.LUT.x_vap   = x_vap;
-    obj.LUT.out_liq = out_liq;
-    obj.LUT.out_vap = out_vap;
+    obj.LUT.x_sat_liq = x_sat_liq;
+    obj.LUT.x_sat_vap = x_sat_vap;
+    obj.LUT.x_liq     = x_liq;
+    obj.LUT.x_vap     = x_vap;
+    obj.LUT.y_vec     = yVarVec;
+    obj.LUT.out_liq   = out_liq;
+    obj.LUT.out_vap   = out_vap;
 end % end method createPhaseDiagramTable

@@ -41,7 +41,10 @@ function plotLUT(obj)
         colorMark = "b-";
     end
     plot([x_liq, x_crit, x_vap(end:-1:1)], [y_liq, y_crit, y_vap(end:-1:1)], colorMark, LineWidth=2)
-    hold off
+    plot([obj.Info_struct.(obj.LUT_x_axis_name + "_crit"), obj.LUT.x_sat_liq(obj.Num_y_sub_crit+1:end)],...
+         [obj.Info_struct.(obj.LUT_y_axis_name + "_crit"), obj.LUT.y_vec(obj.Num_y_sub_crit+1:end)], colorMark,...
+         LineWidth=2);
+
     xlabel(obj.LUT_x_axis_name)
     ylabel(obj.LUT_y_axis_name)
     title(obj.LUT_out_prop_name + "(" + obj.LUT_x_axis_name + ", " + obj.LUT_y_axis_name + ")")
