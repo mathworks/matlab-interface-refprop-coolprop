@@ -1,13 +1,14 @@
-function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_range, Num_rows_liq, Num_rows_vap, Num_cols)
+function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_range, Num_cols, Num_rows_liq, Num_rows_vap, Num_rows_dome)
     arguments
         obj              (1, 1) {mustBeA(obj, "twoPhaseFluidLUT")} % twoPhaseFluidLUT class object
         installPath      (1, 1) string % path to REFPROP or CoolProp installation
         substance        (1, 1) string % name of substance
         LUT_x_axis_range (1, 2) double {mustBeFinite, mustBeSorted(LUT_x_axis_range, "strictascend")} % first property [min, max] values
         LUT_y_axis_range (1, 2) double {mustBeFinite, mustBeSorted(LUT_y_axis_range, "strictascend")} % second property [min, max] values
+        Num_cols         (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_cols,     3)} = 50; % number of columns
         Num_rows_liq     (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_liq, 3)} = 50; % number of rows to create on liquid side
         Num_rows_vap     (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_vap, 3)} = 50; % number of rows to create on vapor side
-        Num_cols         (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_cols,     3)} = 50; % number of columns
+        Num_rows_dome    (1, 1) double {mustBeFinite, mustBeNonnegative, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_dome, 0)} = 0; % number of rows to create under the dome
     end % end arguments block
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,6 +28,7 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
     obj.LUT_y_axis_range       = LUT_y_axis_range;
     obj.Num_rows_liq           = Num_rows_liq;
     obj.Num_rows_vap           = Num_rows_vap;
+    obj.Num_rows_dome          = Num_rows_dome;
     obj.Num_cols               = Num_cols;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,10 +41,12 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
     % the liquid side goes from -1 to 0, the vapor side goes from 1 to 2 %
     % between 0 and 1 is the mixed liquid/vapor region                   %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    liqVecNorm = linspace(-1, 0, obj.Num_rows_liq);
-    vapVecNorm = linspace( 1, 2, obj.Num_rows_vap);
-    obj.LUT.x_liq_Norm = liqVecNorm;
-    obj.LUT.x_vap_Norm = vapVecNorm;
+    liqVecNorm  = linspace(-1, 0, obj.Num_rows_liq);
+    vapVecNorm  = linspace( 1, 2, obj.Num_rows_vap);
+    domeVecNorm = linspace( 0, 1, obj.Num_rows_dome + 2);
+    obj.LUT.x_liq_norm  = liqVecNorm;
+    obj.LUT.x_vap_norm  = vapVecNorm;
+    obj.LUT.x_dome_norm = domeVecNorm(2:end-1);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Define y-axis vector of the lookup table %
@@ -51,6 +55,7 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
     y_max_log = log10(obj.LUT_y_axis_range(2));
     if (y_max_log - y_min_log) > 2
         yVarVec = logspace(log10(obj.LUT_y_axis_range(1)), log10(obj.LUT_y_axis_range(2)), obj.Num_cols);
+        obj.Use_log_y_axis = true;
     else
         yVarVec = linspace(obj.LUT_y_axis_range(1), obj.LUT_y_axis_range(2), obj.Num_cols);
     end
@@ -71,6 +76,7 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
     x_sat_vap          = zeros(1, Num_cols);
     x_sat_vap(1:n_sub) = obj.Info_struct.Phase_line.(obj.LUT_x_axis_name + "_vap");
     out_vap            = zeros(Num_rows_vap, Num_cols);
+    out_dome           = zeros(Num_rows_dome, Num_cols);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % loop through and align the pseudocritical region with 0 and 1 for the normalized vector %
@@ -82,12 +88,12 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
     x_last  = obj.Info_struct.(obj.LUT_x_axis_name + "_crit");
 
     if contains(obj.Fluid_lib_install_path, 'refprop', 'IgnoreCase', true)
-        specificHeat = @(x, y) getFluidProperty(obj.Fluid_lib_install_path, 'CP', obj.LUT_x_axis_name, x, obj.LUT_y_axis_name, y, obj.Fluid, 1, 1, 'MASS BASE SI');
+        specificHeat = @(x, y) getFluidProperty(obj.Fluid_lib_install_path, 'CP', obj.LUT_x_axis_name, x, obj.LUT_y_axis_name, y, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
     else%if contains(libLoc, 'coolprop', 'IgnoreCase', true)
         specificHeat = @(x, y) getFluidProperty(obj.Fluid_lib_install_path, 'CP', obj.LUT_x_axis_name, x, obj.LUT_y_axis_name, y, obj.Fluid, 1, keepLibraryLoaded=true);
     end % end if REFPROP, else CoolProp
 
-    for j = n_sub+1 : Num_cols
+    for cx = n_sub+1 : Num_cols
         % Midpoint of search interval
         x_mid = x_last;
 
@@ -104,7 +110,7 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
         try
             % Search for specific internal energy at peak specific heat
             [x_scaled_check, ~, exitflag] = fminbnd(@(x_scaled) -specificHeat(((x_scaled * half_dx) + x_mid), ...
-                                                                              yVarVec(j)),...
+                                                                              yVarVec(cx)),...
                                                                 x_scaled_bnds(1), x_scaled_bnds(2), opts);
 
             % If search fails, ignore this solution
@@ -129,25 +135,49 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
         % Solution is a peak only if it is in interior of interval
         % If peak is not found, then just extend upward from last point
         if is_interior
-            x_sat_liq(j) = (x_scaled_check * half_dx) + x_mid;
+            x_sat_liq(cx) = (x_scaled_check * half_dx) + x_mid;
         else
-            x_sat_liq(j:Num_cols) = x_last;
+            x_sat_liq(cx:Num_cols) = x_last;
             break
         end
-        x_last = x_sat_liq(j);
+        x_last = x_sat_liq(cx);
     end
 
     x_sat_vap(n_sub+1:Num_cols) = x_sat_liq(n_sub+1:Num_cols);
 
     % Transform grid back to original space
-    x_liq = (liqVecNorm' + 1)*(x_sat_liq - LUT_x_axis_range(1)) + LUT_x_axis_range(1);
-    x_vap = (vapVecNorm' - 2)*(LUT_x_axis_range(2) - x_sat_vap) + LUT_x_axis_range(2);
+    x_liq  = ((liqVecNorm' + 1)      * (x_sat_liq - LUT_x_axis_range(1))) + LUT_x_axis_range(1);
+    x_vap  = ((vapVecNorm' - 2)      * (LUT_x_axis_range(2) - x_sat_vap)) + LUT_x_axis_range(2);
+    x_dome = ( domeVecNorm(2:end-1)' * (x_sat_vap - x_sat_liq))           + x_sat_liq;
 
     % Fill in arrays with fluid properties
-    for j = 1 : Num_cols
-        out_liq(:, j) = getFluidProperty(installPath, 'T', 'H', x_liq(:, j), 'P', yVarVec(j), substance, 1, 1, 'MASS BASE SI');
-        out_vap(:, j) = getFluidProperty(installPath, 'T', 'H', x_vap(:, j), 'P', yVarVec(j), substance, 1, 1, 'MASS BASE SI');
-    end
+    if contains(obj.Fluid_lib_install_path, 'refprop', 'IgnoreCase', true)
+        for cx = 1 : Num_cols
+            out_liq(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_liq(:, cx),...
+                                               obj.LUT_y_axis_name, yVarVec(cx), substance, 1, 1, obj.REFPROP_desired_units);
+            out_vap(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_vap(:, cx),...
+                                               obj.LUT_y_axis_name, yVarVec(cx), substance, 1, 1, obj.REFPROP_desired_units);
+        end % end loop over columns (cx)
+        if numel(out_dome) > 0
+            for cx = 1 : Num_cols
+                out_dome(:, cx) = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_dome(:, cx),...
+                                                   obj.LUT_y_axis_name, yVarVec(cx), substance, 1, 1, obj.REFPROP_desired_units);
+            end % end loop over columns (cx)
+        end % end if user wants points inside the dome
+    else%if contains(obj.Fluid_lib_install_path, 'coolprop', 'IgnoreCase', true)
+        for cx = 1 : Num_cols
+            out_liq(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_liq(:, cx),...
+                                               obj.LUT_y_axis_name, yVarVec(cx), substance, 1, keepLibraryLoaded=true);
+            out_vap(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_vap(:, cx),...
+                                               obj.LUT_y_axis_name, yVarVec(cx), substance, 1, keepLibraryLoaded=true);
+        end % end loop over columns (cx)
+        if numel(out_dome) > 0
+            for cx = 1 : Num_cols
+                out_dome(:, cx) = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_dome(:, cx),...
+                                                   obj.LUT_y_axis_name, yVarVec(cx), substance, 1, keepLibraryLoaded=true);
+            end % end loop over columns (cx)
+        end % end if user wants points inside the dome
+    end % end if REFPROP, else CoolProp
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % add the remaining vectors to the LUT %
@@ -156,7 +186,9 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
     obj.LUT.x_sat_vap = x_sat_vap;
     obj.LUT.x_liq     = x_liq;
     obj.LUT.x_vap     = x_vap;
+    obj.LUT.x_dome    = x_dome;
     obj.LUT.y_vec     = yVarVec;
     obj.LUT.out_liq   = out_liq;
     obj.LUT.out_vap   = out_vap;
+    obj.LUT.out_dome  = out_dome;
 end % end method createPhaseDiagramTable

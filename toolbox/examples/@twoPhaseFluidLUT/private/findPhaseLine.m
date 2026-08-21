@@ -20,11 +20,11 @@ function findPhaseLine(obj)
     % get sub-critical values of property 2 for liquid and vapor phases %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if contains(obj.Fluid_lib_install_path, 'refprop', 'IgnoreCase', true)
-        x_liq_vec = getFluidProperty(obj.Fluid_lib_install_path, 'H', 'Q', 0, 'P', y_liq_vec, obj.Fluid, 1, 1, 'MASS BASE SI');
-        x_vap_vec = getFluidProperty(obj.Fluid_lib_install_path, 'H', 'Q', 1, 'P', y_vap_vec, obj.Fluid, 1, 1, 'MASS BASE SI');
+        x_liq_vec = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'Q', 0, obj.LUT_y_axis_name, y_liq_vec, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
+        x_vap_vec = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'Q', 1, obj.LUT_y_axis_name, y_vap_vec, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
     else%if contains(libLoc, 'coolprop', 'IgnoreCase', true)
-        x_liq_vec = getFluidProperty(obj.Fluid_lib_install_path, 'H', 'Q', 0, 'P', y_liq_vec, obj.Fluid, 1, keepLibraryLoaded=true);
-        x_vap_vec = getFluidProperty(obj.Fluid_lib_install_path, 'H', 'Q', 1, 'P', y_vap_vec, obj.Fluid, 1, keepLibraryLoaded=true);
+        x_liq_vec = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'Q', 0, obj.LUT_y_axis_name, y_liq_vec, obj.Fluid, 1, keepLibraryLoaded=true);
+        x_vap_vec = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'Q', 1, obj.LUT_y_axis_name, y_vap_vec, obj.Fluid, 1, keepLibraryLoaded=true);
     end % end if REFPROP, else CoolProp
     
     %%%%%%%%%%%%%%%%%%%%

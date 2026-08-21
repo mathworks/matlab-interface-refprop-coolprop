@@ -3,6 +3,7 @@ classdef twoPhaseFluidLUT < handle
         LUT_x_axis_name
         LUT_y_axis_name
         LUT_out_prop_name
+        REFPROP_desired_units
     end % end public properties
 
     properties (GetAccess = public, SetAccess = private)
@@ -16,24 +17,28 @@ classdef twoPhaseFluidLUT < handle
         LUT_y_axis_range
         Num_rows_liq
         Num_rows_vap
+        Num_rows_dome
         Num_cols
         Num_y_sub_crit
+        Use_log_y_axis = false;
     end % end private properties
 
     methods
-        function obj = twoPhaseFluidLUT(LUT_out_prop_name, LUT_x_axis_name, LUT_y_axis_name)
+        function obj = twoPhaseFluidLUT(LUT_out_prop_name, LUT_x_axis_name, LUT_y_axis_name, REFPROP_desired_units)
             arguments
-                LUT_out_prop_name (1, 1) string = ""; % Property desired as a function of Prop_in_1 and Prop_in_2
-                LUT_x_axis_name   (1, 1) string = ""; % First input property 
-                LUT_y_axis_name   (1, 1) string = ""; % Second input property
+                LUT_out_prop_name     (1, 1) string = "";       % Property desired as a function of Prop_in_1 and Prop_in_2
+                LUT_x_axis_name       (1, 1) string = "";       % First input property 
+                LUT_y_axis_name       (1, 1) string = "";       % Second input property
+                REFPROP_desired_units (1, 1) string = "MKS";    % REFPROP allows user to specify units - see REFPROP documentation for more information
             end
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % store the property names - this will be used to create structure field names %
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            obj.LUT_x_axis_name   = LUT_x_axis_name;
-            obj.LUT_y_axis_name   = LUT_y_axis_name;
-            obj.LUT_out_prop_name = LUT_out_prop_name;
+            obj.LUT_x_axis_name       = LUT_x_axis_name;
+            obj.LUT_y_axis_name       = LUT_y_axis_name;
+            obj.LUT_out_prop_name     = LUT_out_prop_name;
+            obj.REFPROP_desired_units = REFPROP_desired_units;
         end % end constructor of twoPhaseFluidLUT class
 
         function saveLUT(obj, outFile)

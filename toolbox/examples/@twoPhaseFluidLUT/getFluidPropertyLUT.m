@@ -8,9 +8,9 @@ function outProp = getFluidPropertyLUT(obj, x, y)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % get lookup table and vectors %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    x_vec_norm = [obj.LUT.x_liq_Norm, obj.LUT.x_vap_Norm];
+    x_vec_norm = [obj.LUT.x_liq_norm, obj.LUT.x_dome_norm, obj.LUT.x_vap_norm];
     y_vec      =  obj.LUT.y_vec;
-    LUT_out    = [obj.LUT.out_liq; obj.LUT.out_vap];
+    LUT_out    = [obj.LUT.out_liq; obj.LUT.out_dome; obj.LUT.out_vap];
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % find the saturated liquid and vapor values for x at the given y %

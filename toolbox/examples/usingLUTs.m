@@ -1,118 +1,122 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% set up the necessary variables for LUT T(H, P) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+libLoc = 'C:\Program Files (x86)\REFPROP\'; % Location for REFPROP install
+Fluid   = "R134a";                          % fluid name
+x_min   = 100000;                           % minimum x value (e.g. enthalpy (kJ/kg))
+x_max   = 500000;                           % maximum x value (e.g. enthalpy (kJ/kg))
+y_min   = 0.01e6;                           % minimum y value (e.g. pressure (kPa))
+y_max   = 6e6;                              % maximum y value (e.g. pressure (kPa))
+nCols   = 100;                              % number of columns in LUT for y
+nRowsL  = 100;                              % number of rows in LUT for x below liquid saturation
+nRowsV  = 100;                              % number of rows in LUT for x above vapor saturation
+nRowsD  = 100;                              % number of rows in LUT for x inside dome
+outProp = "T";                              % output property symbol required by REFPROP
+xProp   = "H";                              % LUT x-axis property symbol required by REFPROP
+yProp   = "P";                              % LUT y-axis property symbol required by REFPROP
+units   = 'MASS BASE SI';                   % Units to use for REFPROP
 
-if ~exist("T_of_H_P", "var")
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% create the two phase lookup table class object %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+T_of_H_P = twoPhaseFluidLUT(outProp, xProp, yProp, units);
 
-    libLoc = 'C:\Program Files (x86)\REFPROP\'; % Location for REFPROP install
-    Fluid   = "R134a";                          % fluid name
-    H_min   = 100000;                           % minimum enthalpy (kJ/kg)
-    H_max   = 500000;                           % maximum enthalpy (kJ/kg)
-    P_min   = 0.01e6;                           % minimum pressure (kPa)
-    P_max   = 6e6;                              % maximum pressure (kPa)
-    nRowsL  = 50;                               % number of rows in LUT for H below liquid saturation
-    nRowsV  = 50;                               % number of rows in LUT for H above vapor saturation
-    nCols   = 50;                               % number of columns in LUT for P
-    outProp = "T";                              % output property symbol required by REFPROP
-    xProp   = "H";                              % LUT x-axis property symbol required by REFPROP
-    yProp   = "P";                              % LUT y-axis property symbol required by REFPROP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% create the lookup table using REFPROP %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+disp("Creating the LUT")
+tic
+T_of_H_P.createTable(libLoc, Fluid, [x_min, x_max], [y_min, y_max], nCols, nRowsL, nRowsV, nRowsD);
+toc
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % create the two phase lookup table class object %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    T_of_H_P = twoPhaseFluidLUT(outProp, xProp, yProp);
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % create the lookup table using REFPROP %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    disp("Creating the LUT")
-    tic
-    T_of_H_P.createTable(libLoc, Fluid, [H_min, H_max], [P_min, P_max], nRowsL, nRowsV, nCols);
-    toc
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % plot the LUT (phase diagram) %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    T_of_H_P.plotLUT;
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % save the LUT for use in the future %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    T_of_H_P.saveLUT("toolbox\examples\LUT4TofHandP");
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% plot the LUT (phase diagram) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+T_of_H_P.plotLUT;
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % get the grid points to make sure our lookup function is what we expect %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    numPts = (nRowsL + nRowsV) * nCols;
-    xVals  = reshape([T_of_H_P.LUT.x_liq; T_of_H_P.LUT.x_vap], numPts, 1);
-    yVals  = reshape(repmat(T_of_H_P.LUT.y_vec, (nRowsL + nRowsV), 1), numPts, 1);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% save the LUT for use in the future %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+T_of_H_P.saveLUT("toolbox\examples\LUT4TofHandP");
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % get a random sample in space to test the robustness of the lookup function %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    numPts2 = 1000;
-    xVals2  = randsample(linspace(H_min, H_max, numPts2), numPts2);
-    yVals2  = randsample(logspace(log10(P_min), log10(P_max), numPts2), numPts2);
-end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% get a random sample in space to test the robustness of the lookup function %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+numPts = 1000;
+xVals  = randsample(linspace(x_min, x_max, numPts), numPts);
+yVals  = randsample(logspace(log10(y_min), log10(y_max), numPts), numPts);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % now do the calculation and look up the value you want at the given x, y inputs %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 outVals = nan(1, numPts);
-disp("Looking up " + numPts + " T(H, P) with the LUT")
+disp("Looking up " + numPts + " " + outProp + "(" + xProp + ", " + yProp + ") with the LUT")
 tic
 for ix = 1:numPts
     outVals(ix) = T_of_H_P.getFluidPropertyLUT(xVals(ix), yVals(ix));
 end % end loop over number of points (ix)
 toc
 
-disp("Looking up " + numPts + " T(H, P) with the direct call to REFPROP")
+%%%%%%%%%%%%%%%%%%
+% load saved LUT %
+%%%%%%%%%%%%%%%%%%
+disp("Loading LUT for " + outProp + "(" + xProp + ", " + yProp + ")")
 tic
-outValsOld = nan(1, numPts);
-for ix = 1:numPts
-    outValsOld(ix) = getFluidProperty(libLoc, "T", "H", xVals(ix), "P", yVals(ix), Fluid, 1, 1, 'MASS BASE SI');
-end
+T_of_H_P_Loaded = twoPhaseFluidLUT;
+T_of_H_P_Loaded.loadTable("toolbox\examples\LUT4TofHandP.mat")
 toc
-
-figure(2)
-clf
-hold on
-xlabel("H")
-ylabel("P")
-zlabel("T")
-plot3(xVals, yVals, outVals, "*", "LineWidth", 2)
-plot3(xVals, yVals, outValsOld, "x", "LineWidth", 2)
-legend("LUT", "Function")
-
-figure(3)
-clf
-plot(outValsOld - outVals)
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% load the saved LUT for use %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-disp("Loading the saved file and repeating above process with random sampling of P and H data.")
-pdt2 = twoPhaseFluidLUT;
-pdt2.loadTable("toolbox\examples\LUT4TofHandP.mat");
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get the same output values from the class %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-outVals2 = nan(1, numPts2);
-for jx = 1:numPts2
-    outVals2(jx) = T_of_H_P.getFluidPropertyLUT(xVals2(jx), yVals2(jx));
+outVals2 = nan(1, numPts);
+disp("Looking up " + numPts + " " + outProp + "(" + xProp + ", " + yProp + ") with the LUT")
+tic
+for jx = 1:numPts
+    outVals2(jx) = T_of_H_P_Loaded.getFluidPropertyLUT(xVals(jx), yVals(jx));
 end % end loop over number of points (ix)
-outValsOld2 = nan(1, numPts2);
-for jx = 1:numPts2
-    outValsOld2(jx) = getFluidProperty(libLoc, "T", "H", xVals2(jx), "P", yVals2(jx), Fluid, 1, 1, 'MASS BASE SI');
-end % end loop over number of points (ix)
-figure(4)
+toc
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% get the same output values directly from REFPROP %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+outValsOld = nan(1, numPts);
+disp("Looking up " + numPts + " " + outProp + "(" + xProp + ", " + yProp + ") with REFPROP")
+tic
+for ix = 1:numPts
+    outValsOld(ix) = getFluidProperty(libLoc, outProp, xProp, xVals(ix), yProp, yVals(ix), Fluid, 1, 1, units);
+end
+toc
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% plot the different output values %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure(2)
 clf
 hold on
-xlabel("H")
-ylabel("P")
-zlabel("T")
-plot3(xVals2, yVals2, outVals2, "*", "LineWidth", 2)
-plot3(xVals2, yVals2, outValsOld2, "x", "LineWidth", 2)
-legend("LUT", "Function")
+xlabel(xProp)
+ylabel(yProp)
+zlabel(outProp)
+title(outProp + "(" + xProp + ", " + yProp + ") with the LUT")
+plot3(xVals, yVals, outVals,    "*", "LineWidth", 2)
+plot3(xVals, yVals, outVals2,   "x", "LineWidth", 2)
+plot3(xVals, yVals, outValsOld, "d", "LineWidth", 2)
+legend("Calculated", "Loaded", "REFPROP")
+ax = gca;
+ax.YScale = "log";
+view(3)
 
-figure(5)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% plot the difference between output values %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure(3)
 clf
-plot(outValsOld2 - outVals2)
+hold on
+title("LUT vs REFPROP " + outProp + " calculation results")
+xlabel("Points")
+ylabel("(" + outProp + "_{REFPROP} - "  + outProp + "_{LUT}) / " + outProp + "_{REFPROP}" )
+plot((outValsOld - outVals)  ./ outValsOld, "-" )
+plot((outValsOld - outVals2) ./ outValsOld, "--")
+legend("Calculated", "Loaded")
+
+

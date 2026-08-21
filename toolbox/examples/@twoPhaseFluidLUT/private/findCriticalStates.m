@@ -6,10 +6,10 @@ function findCriticalStates(obj)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % find critical temperature and pressure %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        T_crit = getFluidProperty(obj.Fluid_lib_install_path, 'T', 'CRIT', 1, '', 1, obj.Fluid, 1, 1, 'MASS BASE SI');
-        P_crit = getFluidProperty(obj.Fluid_lib_install_path, 'P', 'CRIT', 1, '', 1, obj.Fluid, 1, 1, 'MASS BASE SI');
-        T_trip = getFluidProperty(obj.Fluid_lib_install_path, 'T', 'TRIP', 1, '', 1, obj.Fluid, 1, 1, 'MASS BASE SI');
-        P_trip = getFluidProperty(obj.Fluid_lib_install_path, 'P', 'TRIP', 1, '', 1, obj.Fluid, 1, 1, 'MASS BASE SI');
+        T_crit = getFluidProperty(obj.Fluid_lib_install_path, 'T', 'CRIT', 1, '', 1, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
+        P_crit = getFluidProperty(obj.Fluid_lib_install_path, 'P', 'CRIT', 1, '', 1, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
+        T_trip = getFluidProperty(obj.Fluid_lib_install_path, 'T', 'TRIP', 1, '', 1, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
+        P_trip = getFluidProperty(obj.Fluid_lib_install_path, 'P', 'TRIP', 1, '', 1, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % find critical input 1 properties %
@@ -21,8 +21,8 @@ function findCriticalStates(obj)
             x_crit = P_crit;
             x_trip = P_trip;
         else
-            x_crit = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'T', T_crit, 'P', P_crit, obj.Fluid, 1, 1, 'MASS BASE SI');
-            x_trip = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'T', T_trip, 'P', P_trip, obj.Fluid, 1, 1, 'MASS BASE SI');
+            x_crit = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'T', T_crit, 'P', P_crit, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
+            x_trip = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'T', T_trip, 'P', P_trip, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,17 +35,17 @@ function findCriticalStates(obj)
             y_crit = P_crit;
             y_trip = P_trip;
         else
-            y_crit = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_y_axis_name, 'T', T_crit, 'P', P_crit, obj.Fluid, 1, 1, 'MASS BASE SI');
-            y_trip = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_x_axis_name, 'T', T_trip, 'P', P_trip, obj.Fluid, 1, 1, 'MASS BASE SI');
+            y_crit = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_y_axis_name, 'T', T_crit, 'P', P_crit, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
+            y_trip = getFluidProperty(obj.Fluid_lib_install_path, obj.LUT_y_axis_name, 'T', T_trip, 'P', P_trip, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
         end
     else%if contains(obj.Fluid_lib_install_path, 'coolprop', 'IgnoreCase', true)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % find critical temperature and pressure %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        T_crit = getFluidProperty(obj.Fluid_lib_install_path, 'T_CRITICAL', 'Hmass', 1, 'P', 1, obj.Fluid, 1, keepLibraryLoaded=true);
-        P_crit = getFluidProperty(obj.Fluid_lib_install_path, 'P_CRITICAL', 'Hmass', 1, 'P', 1, obj.Fluid, 1, keepLibraryLoaded=true);
-        T_trip = getFluidProperty(obj.Fluid_lib_install_path, 'T_TRIPLE',   'Hmass', 1, 'P', 1, obj.Fluid, 1, keepLibraryLoaded=true);
-        P_trip = getFluidProperty(obj.Fluid_lib_install_path, 'P_TRIPLE',   'Hmass', 1, 'P', 1, obj.Fluid, 1, keepLibraryLoaded=true);
+        T_crit = getFluidProperty(obj.Fluid_lib_install_path, 'T_CRITICAL', '', 1, '', 1, obj.Fluid, 1, keepLibraryLoaded=true);
+        P_crit = getFluidProperty(obj.Fluid_lib_install_path, 'P_CRITICAL', '', 1, '', 1, obj.Fluid, 1, keepLibraryLoaded=true);
+        T_trip = getFluidProperty(obj.Fluid_lib_install_path, 'T_TRIPLE',   '', 1, '', 1, obj.Fluid, 1, keepLibraryLoaded=true);
+        P_trip = getFluidProperty(obj.Fluid_lib_install_path, 'P_TRIPLE',   '', 1, '', 1, obj.Fluid, 1, keepLibraryLoaded=true);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % find critical input 1 properties %
