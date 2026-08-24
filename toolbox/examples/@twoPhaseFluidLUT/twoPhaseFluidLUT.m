@@ -73,7 +73,7 @@ classdef twoPhaseFluidLUT < handle
             save(outFile, "obj_params");
         end % end function saveLUT
 
-        function loadTable(obj, fileName)
+        function loadLUT(obj, fileName)
             arguments
                 obj      (1, 1) {mustBeA(obj, "twoPhaseFluidLUT")} % twoPhaseFluidLUT class object
                 fileName (1, 1) string {mustBeNonempty, mustBeFile};
@@ -90,7 +90,7 @@ classdef twoPhaseFluidLUT < handle
             try
                 obj_params = obj_params.obj_params;
             catch ME
-                disp("You must load a lookup table that has come from the twoPhaseFluidLUT createTable method.")
+                disp("You must load a lookup table that has come from the twoPhaseFluidLUT createLUT method.")
             end
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -109,6 +109,6 @@ classdef twoPhaseFluidLUT < handle
             % make sure the file name is up to date %
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             obj.Fluid_table_file_path = fileName;
-        end % end function loadTable
+        end % end function loadLUT
     end % end public methods
 end % end classdef twoPhaseFluidLUT

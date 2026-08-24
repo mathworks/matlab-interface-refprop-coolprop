@@ -1,4 +1,4 @@
-function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_range, Num_cols, Num_rows_liq, Num_rows_vap, Num_rows_dome)
+function createLUT(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_range, Num_cols, Num_rows_liq, Num_rows_vap, Num_rows_dome)
     arguments
         obj              (1, 1) {mustBeA(obj, "twoPhaseFluidLUT")} % twoPhaseFluidLUT class object
         installPath      (1, 1) string % path to REFPROP or CoolProp installation
@@ -191,4 +191,4 @@ function createTable(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_r
     obj.LUT.out_liq   = out_liq;
     obj.LUT.out_vap   = out_vap;
     obj.LUT.out_dome  = out_dome;
-end % end method createPhaseDiagramTable
+end % end method createLUT

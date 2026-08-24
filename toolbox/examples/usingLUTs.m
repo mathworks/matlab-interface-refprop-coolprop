@@ -26,7 +26,7 @@ T_of_H_P = twoPhaseFluidLUT(outProp, xProp, yProp, units);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp("Creating the LUT")
 tic
-T_of_H_P.createTable(libLoc, Fluid, [x_min, x_max], [y_min, y_max], nCols, nRowsL, nRowsV, nRowsD);
+T_of_H_P.createLUT(libLoc, Fluid, [x_min, x_max], [y_min, y_max], nCols, nRowsL, nRowsV, nRowsD);
 toc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -63,7 +63,7 @@ toc
 disp("Loading LUT for " + outProp + "(" + xProp + ", " + yProp + ")")
 tic
 T_of_H_P_Loaded = twoPhaseFluidLUT;
-T_of_H_P_Loaded.loadTable("toolbox\examples\LUT4TofHandP.mat")
+T_of_H_P_Loaded.loadLUT("toolbox\examples\LUT4TofHandP.mat")
 toc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
