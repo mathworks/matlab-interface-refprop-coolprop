@@ -1,32 +1,35 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set up the necessary variables for LUT T(H, P) %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-libLoc = 'C:\Program Files (x86)\REFPROP\'; % Location for REFPROP install
-Fluid   = "R134a";                          % fluid name
-x_min   = 100000;                           % minimum x value (e.g. enthalpy (kJ/kg))
-x_max   = 500000;                           % maximum x value (e.g. enthalpy (kJ/kg))
-y_min   = 0.01e6;                           % minimum y value (e.g. pressure (kPa))
-y_max   = 6e6;                              % maximum y value (e.g. pressure (kPa))
-nCols   = 100;                              % number of columns in LUT for y
-nRowsL  = 100;                              % number of rows in LUT for x below liquid saturation
-nRowsV  = 100;                              % number of rows in LUT for x above vapor saturation
-nRowsD  = 100;                              % number of rows in LUT for x inside dome
-outProp = "T";                              % output property symbol required by REFPROP
-xProp   = "H";                              % LUT x-axis property symbol required by REFPROP
-yProp   = "P";                              % LUT y-axis property symbol required by REFPROP
-units   = 'MASS BASE SI';                   % Units to use for REFPROP
+libLoc     = 'C:\Program Files (x86)\REFPROP\'; % Location for REFPROP install
+Fluid      = "R134a";                           % fluid name
+Comp       = 1;                                 % fluid composition (fractions of species - must sum to 1)
+massOrMole = 1;                                 % REFPROP only: 0 -> Molar, 1 -> Mass 
+x_min      = 100000;                            % minimum x value (e.g. enthalpy (kJ/kg))
+x_max      = 500000;                            % maximum x value (e.g. enthalpy (kJ/kg))
+y_min      = 0.01e6;                            % minimum y value (e.g. pressure (kPa))
+y_max      = 6e6;                               % maximum y value (e.g. pressure (kPa))
+nCols      = 100;                               % number of columns in LUT for y
+nRowsL     = 100;                               % number of rows in LUT for x below liquid saturation
+nRowsV     = 100;                               % number of rows in LUT for x above vapor saturation
+nRowsD     = 100;                               % number of rows in LUT for x inside dome
+outProp    = "T";                               % output property symbol required by REFPROP
+xProp      = "H";                               % LUT x-axis property symbol required by REFPROP
+yProp      = "P";                               % LUT y-axis property symbol required by REFPROP
+units      = 'MASS BASE SI';                    % Units to use for REFPROP
+numPts     = 1000;                              % number of points to look up using the LUT
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create the two phase lookup table class object %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-T_of_H_P = twoPhaseFluidLUT(outProp, xProp, yProp, units);
+T_of_H_P = twoPhaseFluidLUT(outProp, xProp, yProp);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create the lookup table using REFPROP %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp("Creating the LUT")
 tic
-T_of_H_P.createLUT(libLoc, Fluid, [x_min, x_max], [y_min, y_max], nCols, nRowsL, nRowsV, nRowsD);
+T_of_H_P.createLUT(libLoc, Fluid, [x_min, x_max], [y_min, y_max], nCols, nRowsL, nRowsV, nRowsD, Comp, massOrMole, units);
 toc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,7 +45,6 @@ T_of_H_P.saveLUT("toolbox\examples\LUT4TofHandP");
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get a random sample in space to test the robustness of the lookup function %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-numPts = 1000;
 xVals  = randsample(linspace(x_min, x_max, numPts), numPts);
 yVals  = randsample(logspace(log10(y_min), log10(y_max), numPts), numPts);
 
@@ -84,7 +86,7 @@ outValsOld = nan(1, numPts);
 disp("Looking up " + numPts + " " + outProp + "(" + xProp + ", " + yProp + ") with REFPROP")
 tic
 for ix = 1:numPts
-    outValsOld(ix) = getFluidProperty(libLoc, outProp, xProp, xVals(ix), yProp, yVals(ix), Fluid, 1, 1, units);
+    outValsOld(ix) = getFluidProperty(libLoc, outProp, xProp, xVals(ix), yProp, yVals(ix), Fluid, Comp, massOrMole, units);
 end
 toc
 

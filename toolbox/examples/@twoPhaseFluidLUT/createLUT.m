@@ -1,14 +1,17 @@
-function createLUT(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_range, Num_cols, Num_rows_liq, Num_rows_vap, Num_rows_dome)
+function createLUT(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_range, Num_cols, Num_rows_liq, Num_rows_vap, Num_rows_dome, Fluid_composition, REFPROP_mass_or_molar, REFPROP_desired_units)
     arguments
-        obj              (1, 1) {mustBeA(obj, "twoPhaseFluidLUT")} % twoPhaseFluidLUT class object
-        installPath      (1, 1) string % path to REFPROP or CoolProp installation
-        substance        (1, 1) string % name of substance
-        LUT_x_axis_range (1, 2) double {mustBeFinite, mustBeSorted(LUT_x_axis_range, "strictascend")} % first property [min, max] values
-        LUT_y_axis_range (1, 2) double {mustBeFinite, mustBeSorted(LUT_y_axis_range, "strictascend")} % second property [min, max] values
-        Num_cols         (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_cols,     3)} = 50; % number of columns
-        Num_rows_liq     (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_liq, 3)} = 50; % number of rows to create on liquid side
-        Num_rows_vap     (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_vap, 3)} = 50; % number of rows to create on vapor side
-        Num_rows_dome    (1, 1) double {mustBeFinite, mustBeNonnegative, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_dome, 0)} = 0; % number of rows to create under the dome
+        obj                   (1, 1) {mustBeA(obj, "twoPhaseFluidLUT")} % twoPhaseFluidLUT class object
+        installPath           (1, 1) string % path to REFPROP or CoolProp installation
+        substance             (1, 1) string % name of substance
+        LUT_x_axis_range      (1, 2) double {mustBeFinite, mustBeSorted(LUT_x_axis_range, "strictascend")} % first property [min, max] values
+        LUT_y_axis_range      (1, 2) double {mustBeFinite, mustBeSorted(LUT_y_axis_range, "strictascend")} % second property [min, max] values
+        Num_cols              (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_cols,     3)} = 50; % number of columns
+        Num_rows_liq          (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_liq, 3)} = 50; % number of rows to create on liquid side
+        Num_rows_vap          (1, 1) double {mustBeFinite, mustBePositive, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_vap, 3)} = 50; % number of rows to create on vapor side
+        Num_rows_dome         (1, 1) double {mustBeFinite, mustBeNonnegative, mustBeReal, mustBeGreaterThanOrEqual(Num_rows_dome, 0)} = 0; % number of rows to create under the dome
+        Fluid_composition     (1, :) double = 1;     % assume single species - only if numel(fluid) > 1 will user need to provide
+        REFPROP_mass_or_molar (1, 1) double = 1;     % REFPROP only: 0 -> Molar, 1 -> Mass
+        REFPROP_desired_units (1, 1) string = "MKS"; % REFPROP allows user to specify units - see REFPROP documentation for more information
     end % end arguments block
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -24,6 +27,9 @@ function createLUT(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_ran
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     obj.Fluid_lib_install_path = installPath;
     obj.Fluid                  = substance;
+    obj.Fluid_composition      = Fluid_composition;
+    obj.REFPROP_mass_or_molar  = REFPROP_mass_or_molar;
+    obj.REFPROP_desired_units  = REFPROP_desired_units;
     obj.LUT_x_axis_range       = LUT_x_axis_range;
     obj.LUT_y_axis_range       = LUT_y_axis_range;
     obj.Num_rows_liq           = Num_rows_liq;
@@ -88,9 +94,13 @@ function createLUT(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_ran
     x_last  = obj.Info_struct.(obj.LUT_x_axis_name + "_crit");
 
     if contains(obj.Fluid_lib_install_path, 'refprop', 'IgnoreCase', true)
-        specificHeat = @(x, y) getFluidProperty(obj.Fluid_lib_install_path, 'CP', obj.LUT_x_axis_name, x, obj.LUT_y_axis_name, y, obj.Fluid, 1, 1, obj.REFPROP_desired_units);
+        specificHeat = @(x, y) getFluidProperty(obj.Fluid_lib_install_path, 'CP', obj.LUT_x_axis_name, x,...
+                                                obj.LUT_y_axis_name, y, obj.Fluid, obj.Fluid_composition,...
+                                                obj.REFPROP_mass_or_molar, obj.REFPROP_desired_units);
     else%if contains(libLoc, 'coolprop', 'IgnoreCase', true)
-        specificHeat = @(x, y) getFluidProperty(obj.Fluid_lib_install_path, 'CP', obj.LUT_x_axis_name, x, obj.LUT_y_axis_name, y, obj.Fluid, 1, keepLibraryLoaded=true);
+        specificHeat = @(x, y) getFluidProperty(obj.Fluid_lib_install_path, 'CP', obj.LUT_x_axis_name, x,...
+                                                obj.LUT_y_axis_name, y, obj.Fluid, obj.Fluid_composition,...
+                                                keepLibraryLoaded=true);
     end % end if REFPROP, else CoolProp
 
     for cx = n_sub+1 : Num_cols
@@ -154,27 +164,33 @@ function createLUT(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_ran
     if contains(obj.Fluid_lib_install_path, 'refprop', 'IgnoreCase', true)
         for cx = 1 : Num_cols
             out_liq(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_liq(:, cx),...
-                                               obj.LUT_y_axis_name, yVarVec(cx), substance, 1, 1, obj.REFPROP_desired_units);
+                                               obj.LUT_y_axis_name, yVarVec(cx), substance, obj.Fluid_composition,...
+                                               obj.REFPROP_mass_or_molar, obj.REFPROP_desired_units);
             out_vap(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_vap(:, cx),...
-                                               obj.LUT_y_axis_name, yVarVec(cx), substance, 1, 1, obj.REFPROP_desired_units);
+                                               obj.LUT_y_axis_name, yVarVec(cx), substance, obj.Fluid_composition,...
+                                               obj.REFPROP_mass_or_molar1, obj.REFPROP_desired_units);
         end % end loop over columns (cx)
         if numel(out_dome) > 0
             for cx = 1 : Num_cols
                 out_dome(:, cx) = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_dome(:, cx),...
-                                                   obj.LUT_y_axis_name, yVarVec(cx), substance, 1, 1, obj.REFPROP_desired_units);
+                                                   obj.LUT_y_axis_name, yVarVec(cx), substance, obj.Fluid_composition,...
+                                                   obj.REFPROP_mass_or_molar, obj.REFPROP_desired_units);
             end % end loop over columns (cx)
         end % end if user wants points inside the dome
     else%if contains(obj.Fluid_lib_install_path, 'coolprop', 'IgnoreCase', true)
         for cx = 1 : Num_cols
             out_liq(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_liq(:, cx),...
-                                               obj.LUT_y_axis_name, yVarVec(cx), substance, 1, keepLibraryLoaded=true);
+                                               obj.LUT_y_axis_name, yVarVec(cx), substance, obj.Fluid_compositio,...
+                                               keepLibraryLoaded=true);
             out_vap(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_vap(:, cx),...
-                                               obj.LUT_y_axis_name, yVarVec(cx), substance, 1, keepLibraryLoaded=true);
+                                               obj.LUT_y_axis_name, yVarVec(cx), substance, obj.Fluid_compositio,...
+                                               keepLibraryLoaded=true);
         end % end loop over columns (cx)
         if numel(out_dome) > 0
             for cx = 1 : Num_cols
                 out_dome(:, cx) = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_dome(:, cx),...
-                                                   obj.LUT_y_axis_name, yVarVec(cx), substance, 1, keepLibraryLoaded=true);
+                                                   obj.LUT_y_axis_name, yVarVec(cx), substance, obj.Fluid_compositio,...
+                                                   keepLibraryLoaded=true);
             end % end loop over columns (cx)
         end % end if user wants points inside the dome
     end % end if REFPROP, else CoolProp
