@@ -168,7 +168,7 @@ function createLUT(obj, installPath, substance, LUT_x_axis_range, LUT_y_axis_ran
                                                obj.REFPROP_mass_or_molar, obj.REFPROP_desired_units);
             out_vap(:, cx)  = getFluidProperty(installPath, obj.LUT_out_prop_name, obj.LUT_x_axis_name, x_vap(:, cx),...
                                                obj.LUT_y_axis_name, yVarVec(cx), substance, obj.Fluid_composition,...
-                                               obj.REFPROP_mass_or_molar1, obj.REFPROP_desired_units);
+                                               obj.REFPROP_mass_or_molar, obj.REFPROP_desired_units);
         end % end loop over columns (cx)
         if numel(out_dome) > 0
             for cx = 1 : Num_cols
