@@ -17,7 +17,7 @@ outProp    = "T";                               % output property symbol require
 xProp      = "H";                               % LUT x-axis property symbol required by REFPROP
 yProp      = "P";                               % LUT y-axis property symbol required by REFPROP
 units      = 'MASS BASE SI';                    % Units to use for REFPROP
-numPts     = 1000;                              % number of points to look up using the LUT
+numPts     = 10000;                              % number of points to look up using the LUT
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create the two phase lookup table class object %

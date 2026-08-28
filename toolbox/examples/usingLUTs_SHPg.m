@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% set up the necessary variables for LUT T(H, P) %
+% set up the necessary variables for LUT S(H, P) %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 libLoc     = 'C:\Program Files (x86)\REFPROP\'; % Location for REFPROP install
 Fluid      = "R134a";                           % fluid name
