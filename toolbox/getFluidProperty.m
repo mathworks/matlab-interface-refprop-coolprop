@@ -55,6 +55,19 @@
 %                                                                                    e.g. 'OTH;10.0;1.0;323.15;101.325'
 %                                                                                    H0 in J/mol, S0 in J/mol-K, T0 in K
 %                                                                                    P0 in kPa
+% equationOfState    = [REFPROP optional (name, value) pair] (char) Equation of State definition - if this is unspecified
+%                                                                    REFPROP uses the default definition in the fluid 
+%                                                                    file. Accepted options for reference states by
+%                                                                    REFPROP: 'PRx' for Peng-Robinson
+%                                                                                       where x = 0 (turn off)
+%                                                                                             x = 2 (use for all calculations)
+%                                                                                             x = 3 (use with translation term deactivated)
+%                                                                             'AGA8x' for AGA8 (American Gas Association) equation of state
+%                                                                                       where x = 0 (turn off)
+%                                                                                             x = 1 (turn on)
+%                                                                             'GERGx' for GERG-2008 equation of state
+%                                                                                       where x = 0 (turn off)
+%                                                                                       where x = 1 (turn on)
 % RapidMode           = LOGICAL value (false to suppress, true to show) Rapid mode - when true, skip input checks and only
 %                                                                                load REFPROP DLL once, do not unload it
 %                               CAUTION!!!! The user needs to take care with their inputs!!!
@@ -276,7 +289,8 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         opts.outputAsStruct    (1, 1) logical = false; % both
         opts.keepLibraryLoaded (1, 1) logical = false; % CoolProp ONLY
         opts.referenceState    (1, :) char    = '';    % REFPROP ONLY
-        opts.rapidMode         (1, 1) logical = false; % REFPROP ONLY - set to true to skip input checks - this will signficantly speed up interations
+        opts.equationOfState   (1, :) char    = '';    % REFPROP ONLY
+        opts.rapidMode         (1, 1) logical = false; % REFPROP ONLY - set to true to skip input checks - this will significantly speed up interations
     end
 
     arguments (Output, Repeating)
@@ -320,7 +334,7 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         tmpReqPropVal = MLrefprop(requestedProperty, inputProps, inputProperty1Value, inputProperty2Value,...
                                   fluid, massOrMolar, fluidComposition, desiredUnits, libraryLocation,...
-                                  opts.referenceState, opts.rapidMode, false);
+                                  opts.referenceState, opts.equationOfState, opts.rapidMode, false);
     else
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % shape the output to match REFPROP when given input property value arrays, we shouldn't have to do %

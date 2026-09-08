@@ -19,7 +19,7 @@
 %  MassOrMolar    = INT value to determine input composition units: 0 -> Molar, 1 -> Mass   
 %  DesiredUnits   = CHAR value to determine units to use (enum as expected by refprop.dll)  
 %  Path2Refprop   = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)   
-%  referenceState = CHAR [optional (name, value) pair] Reference state definition - if this is unspecified REFPROP uses 
+%  ReferenceState = CHAR [optional (name, value) pair] Reference state definition - if this is unspecified REFPROP uses 
 %                                                      the default definition in the fluid file. Accepted options for 
 %                                                      reference states by
 %                                                      REFPROP: 'ASH' for ASHRE convention h,s=0 @ -40C, 
@@ -33,6 +33,19 @@
 %                                                                     specified by user 
 %                                                                     e.g., 'OTH;10.0;1.0;323.15;101.325' H0 in J/mol, 
 %                                                                           S0 in J/mol-K, T0 in K P0 in kPa
+% equationOfState    = [REFPROP optional (name, value) pair] (char) Equation of State definition - if this is unspecified
+%                                                                    REFPROP uses the default definition in the fluid 
+%                                                                    file. Accepted options for reference states by
+%                                                                    REFPROP: 'PRx' for Peng-Robinson
+%                                                                                       where x = 0 (turn off)
+%                                                                                             x = 2 (use for all calculations)
+%                                                                                             x = 3 (use with translation term deactivated)
+%                                                                             'AGA8x' for AGA8 (American Gas Association) equation of state
+%                                                                                       where x = 0 (turn off)
+%                                                                                             x = 1 (turn on)
+%                                                                             'GERGx' for GERG-2008 equation of state
+%                                                                                       where x = 0 (turn off)
+%                                                                                       where x = 1 (turn on)
 %  RapidMode      = LOGICAL value (false to suppress, true to show) Rapid mode - when true, skip input checks and only
 %                                                                                load REFPROP DLL once, do not unload it
 %                       CAUTION!!!! The user needs to take care with their inputs!!!
@@ -148,20 +161,21 @@
 % 16 JAN 2020
 
 function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits,...
-                            Path2Refprop, referenceState, RapidMode, DebugOutput)
+                            Path2Refprop, ReferenceState, EquationOfState, RapidMode, DebugOutput)
     arguments
-        PropReq        (1, :) char;
-        Spec           (1, :) char;
-        Value1         (1, :) double;
-        Value2         (1, :) double;
-        Fluid          (1, :) char;
-        MassOrMolar    (1, 1) double;
-        Composition    (1, :) double;
-        DesiredUnits   (1, :) char;
-        Path2Refprop   (1, :) char;
-        referenceState (1, :) char;
-        RapidMode      (1, 1) logical;
-        DebugOutput    (1, 1) logical;
+        PropReq         (1, :) char;
+        Spec            (1, :) char;
+        Value1          (1, :) double;
+        Value2          (1, :) double;
+        Fluid           (1, :) char;
+        MassOrMolar     (1, 1) double;
+        Composition     (1, :) double;
+        DesiredUnits    (1, :) char;
+        Path2Refprop    (1, :) char;
+        ReferenceState  (1, :) char;
+        EquationOfState (1, :) char;
+        RapidMode       (1, 1) logical;
+        DebugOutput     (1, 1) logical;
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -306,13 +320,32 @@ function output = MLrefprop(PropReq, Spec, Value1, Value2, Fluid, MassOrMolar, C
     else
         numReqs = 1;
     end
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % parse the equation of state variable and get the flag out %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if ~isempty(EquationOfState)
+        eosFlag = str2double(EquationOfState(end));
+        EquationOfState = EquationOfState(1:end-1);
+        if ~strcmp(EquationOfState, "PR")
+            if ((eosFlag > 1) || (eosFlag < 0))
+                error("Only values of 0 for off and 1 for on are acceptable equation of state flag values")
+            end
+        else
+            if (eosFlag > 3) || (eosFlag < 0) || (eosFlag == 1)
+                error("Only values of 0 for off, 2 for on, or 3 for deactivated translation term are acceptable equation of state flag values for Peng-Robinson")
+            end
+        end
+    else
+        eosFlag = 0;
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % call to the mex function that queries refprop %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     try
         output = hiLevelMexC(PropReq, numReqs, Spec, Value1, Value2, Fluid, MassOrMolar, Composition, DesiredUnits,...
-                             Path2Refprop, referenceState, RapidMode, DebugOutput);
+                             Path2Refprop, ReferenceState, EquationOfState, eosFlag, RapidMode, DebugOutput);
     catch ME
         %%%%%%%%%%%%%%%%%%%%%%%%%
         % Get the error message %

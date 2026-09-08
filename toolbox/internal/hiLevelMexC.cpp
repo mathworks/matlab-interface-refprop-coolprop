@@ -47,7 +47,7 @@
 void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArray *inputs[])
 {
     int expectedOut =  1;   // expected number of output variables
-    int expectedIn  = 13;   // expected number of input  variables
+    int expectedIn  = 15;   // expected number of input  variables
     int inputInt;
     double inputDouble;
 
@@ -115,11 +115,19 @@ void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArr
         {
             mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable Reference State expected to be of type CHAR.");
         }
-        else if(!mxIsLogicalScalar(inputs[11]))
+        else if(!mxIsChar(inputs[11]))
+        {
+            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable Equation of State expected to be of type CHAR.");
+        }
+        else if(!mxIsDouble(inputs[12]))
+        {
+            mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable equation of state flag expected to be of type DOUBLE with values of 0, 1, 2, or 3.");
+        }
+        else if(!mxIsLogicalScalar(inputs[13]))
         {
             mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable RapidMode expected to be of type BOOLEAN with values of 0 or 1.");
         }
-        else if(!mxIsLogicalScalar(inputs[12]))
+        else if(!mxIsLogicalScalar(inputs[14]))
         {
             mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", "Input variable DebugOutput expected to be of type BOOLEAN with values of 0 or 1.");
         }
@@ -141,26 +149,42 @@ void checkArguments(int numOutArg, mxArray *outputs[], int numInArg, const mxArr
                                   "MassOrMolar input of %d is invalid. Acceptable values are 0 for Molar and 1 for Mass to select desired units.", inputInt);
             } // end if MassOrMolar is invalid
             
-            ////////////////////////////////////////////////////////////////////////////////////////////
-            // Checking that the value of DebugOutput is properly set to either 0 (false) or 1 (true) //
-            ////////////////////////////////////////////////////////////////////////////////////////////
-            inputDouble = mxGetScalar(inputs[11]);
+            ///////////////////////////////////////////////////////////////////////////////
+            // Checking that the value of eosFlag is properly set to either 0, 1 2, or 3 //
+            ///////////////////////////////////////////////////////////////////////////////
+            inputDouble = mxGetScalar(inputs[12]);
+            inputInt    = int(inputDouble);
+            if (double(inputInt) < (inputDouble - 0.01))
+            {
+                mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", 
+                                  "Decimal values of eosFlag are invalid: %f. Acceptable values are integer values of 0, 1, 2, 3.", inputDouble);
+            } // end if eosFlag is invalid
+            if ((inputInt < 0) || (inputInt > 3))
+            {
+                mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", 
+                                  "eosFlag input of %d is invalid. Acceptable values are 0, 1, 2, or 3.", inputDouble);
+            } // end if eosFlag is invalid
+
+            //////////////////////////////////////////////////////////////////////////////////////////
+            // Checking that the value of RapidMode is properly set to either 0 (false) or 1 (true) //
+            //////////////////////////////////////////////////////////////////////////////////////////
+            inputDouble = mxGetScalar(inputs[13]);
             inputInt    = int(inputDouble);
             if (double(inputInt) < (inputDouble - 0.01))
             {
                 mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", 
                                   "Decimal values of RapidMode are invalid: %f. Acceptable values are integer values of 0 for false and 1 for true to run in rapid mode.", inputDouble);
-            } // end if DebugOutput is invalid
+            } // end if RapidMode is invalid
             if ((inputInt != 0) && (inputInt != 1))
             {
                 mexErrMsgIdAndTxt("MyToolbox:arrayProduct:prhs", 
                                   "RapidMode input of %d is invalid. Acceptable values are 0 for false and 1 for true to run in rapid mode.", inputDouble);
-            } // end if DebugOutput is invalid
+            } // end if RapidMode is invalid
 
             ////////////////////////////////////////////////////////////////////////////////////////////
             // Checking that the value of DebugOutput is properly set to either 0 (false) or 1 (true) //
             ////////////////////////////////////////////////////////////////////////////////////////////
-            inputDouble = mxGetScalar(inputs[12]);
+            inputDouble = mxGetScalar(inputs[14]);
             inputInt    = int(inputDouble);
             if (double(inputInt) < (inputDouble - 0.01))
             {
@@ -200,8 +224,10 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
           char   *unit_char = mxArrayToString(inputs[8]);               // Sets up which units to use -> molar or mass, SI or English
     std::string   path      = std::string(mxArrayToString(inputs[9]));  // location of reprop dll
           char   *hrf       = mxArrayToString(inputs[10]);              // Reference state for fluid
-          bool    RapidMode = mxIsLogicalScalarTrue(inputs[11]);        // logical for running in rapid mode - no input checking or library unloading
-          bool    DebugOut  = mxIsLogicalScalarTrue(inputs[12]);        // logical for printing debug info to the MATLAB console
+          char   *eos       = mxArrayToString(inputs[11]);              // Equation of State to use
+          int     eosFlag   = int(mxGetScalar(inputs[12]));             // Equation of State flag (0 = turn off, 1 = turn on, 2 and 3 are for Peng-Robinson only)
+          bool    RapidMode = mxIsLogicalScalarTrue(inputs[13]);        // logical for running in rapid mode - no input checking or library unloading
+          bool    DebugOut  = mxIsLogicalScalarTrue(inputs[14]);        // logical for printing debug info to the MATLAB console
 
     /////////////////////////////////////////////////////////////////// 
     // getting the size of all the char arrays passed through inputs // 
@@ -214,7 +240,8 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
     size_t  outArraySz  = 3;                                                // size of output array
     size_t  dims[]      = {numelVal1, numelVal2, numReq};                   // dimensions of output array
     size_t  hrf_len     = (mxGetM(inputs[10]) * mxGetN(inputs[10])) + 1;    // number of chars in hrf
-    
+    size_t  eos_len     = (mxGetM(inputs[11]) * mxGetN(inputs[11])) + 1;    // number of chars in hrf
+
     /////////////////////////////////////////////
     // Allocate memory for the output variable //
     /////////////////////////////////////////////
@@ -353,6 +380,22 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
             ///////////////////////////////////////////
             a = value1[itr]; // set first spec entry
             b = value2[itc]; // set second spec entry
+
+            ////////////////////////////////////////////////////////////////////////
+            // if the user has passed in an equation of state tell REFPROP to run //
+            // SETREF else, use the default reference state in the fluid file     //
+            ////////////////////////////////////////////////////////////////////////
+            if(eos_len > 1)
+            {
+                char hInFLAG [255];
+                hInFLAG[0] = 'F';
+                hInFLAG[1] = 'L';
+                hInFLAG[2] = 'A';
+                hInFLAG[3] = 'G';
+                hInFLAG[4] = 'S';
+
+                REFPROPdll(hFld, hInFLAG, eos, iUnits, iMass, eosFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
+            }
 
             ////////////////////////////////////////////////////////////////////////////
             // if the user has passed in a reference state tell REFPROP to run SETREF //
