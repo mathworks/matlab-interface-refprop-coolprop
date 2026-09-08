@@ -41,33 +41,33 @@
 %                                                                                   name as each property specified in 
 %                                                                                   requestedProperty.
 % referenceState     = [REFPROP optional (name, value) pair] (char) Reference state definition - if this is unspecified
-%                                                                    REFPROP uses the default definition in the fluid 
-%                                                                    file. Accepted options for reference states by
-%                                                                    REFPROP: 'ASH' for ASHRE convention h,s=0 @ -40C, 
-%                                                                             'NBP' h,s=0 at normal boiling point(s)
-%                                                                             'IIR' for IRR convention h=200kJ/kg, 
-%                                                                                   s=1 kJ/kg-K for sat. liquid @ 0C 
-%                                                                             'DEF' for default values in fluid file
-%                                                                             'OTH;H0;S0;T0;P0' for real gas state
-%                                                                             'OT0;H0;S0;T0;P0' for ideal-gas state
-%                                                                                    where H0, S0, T0, P0 are the 
-%                                                                                    actual numbers specified by user
-%                                                                                    e.g. 'OTH;10.0;1.0;323.15;101.325'
-%                                                                                    H0 in J/mol, S0 in J/mol-K, T0 in K
-%                                                                                    P0 in kPa
+%                                                                   REFPROP uses the default definition in the fluid 
+%                                                                   file. Accepted options for reference states by
+%                                                                   REFPROP: 'ASH' for ASHRE convention h,s=0 @ -40C, 
+%                                                                            'NBP' h,s=0 at normal boiling point(s)
+%                                                                            'IIR' for IRR convention h=200kJ/kg, 
+%                                                                                  s=1 kJ/kg-K for sat. liquid @ 0C 
+%                                                                            'DEF' for default values in fluid file
+%                                                                            'OTH;H0;S0;T0;P0' for real gas state
+%                                                                            'OT0;H0;S0;T0;P0' for ideal-gas state
+%                                                                                   where H0, S0, T0, P0 are the 
+%                                                                                   actual numbers specified by user
+%                                                                                   e.g. 'OTH;10.0;1.0;323.15;101.325'
+%                                                                                   H0 in J/mol, S0 in J/mol-K, T0 in K
+%                                                                                   P0 in kPa
 % equationOfState    = [REFPROP optional (name, value) pair] (char) Equation of State definition - if this is unspecified
-%                                                                    REFPROP uses the default definition in the fluid 
-%                                                                    file. Accepted options for reference states by
-%                                                                    REFPROP: 'PRx' for Peng-Robinson
-%                                                                                       where x = 0 (turn off)
-%                                                                                             x = 2 (use for all calculations)
-%                                                                                             x = 3 (use with translation term deactivated)
-%                                                                             'AGA8x' for AGA8 (American Gas Association) equation of state
-%                                                                                       where x = 0 (turn off)
-%                                                                                             x = 1 (turn on)
-%                                                                             'GERGx' for GERG-2008 equation of state
-%                                                                                       where x = 0 (turn off)
-%                                                                                       where x = 1 (turn on)
+%                                                                   REFPROP uses the default definition in the fluid 
+%                                                                   file. Accepted options for reference states by
+%                                                                   REFPROP: 'PRx' for Peng-Robinson
+%                                                                                      where x = 0 (turn off)
+%                                                                                            x = 2 (use for all calculations)
+%                                                                                            x = 3 (use with translation term deactivated)
+%                                                                            'AGA8x' for AGA8 (American Gas Association) equation of state
+%                                                                                      where x = 0 (turn off)
+%                                                                                            x = 1 (turn on)
+%                                                                            'GERGx' for GERG-2008 equation of state
+%                                                                                      where x = 0 (turn off)
+%                                                                                      where x = 1 (turn on)
 % RapidMode           = LOGICAL value (false to suppress, true to show) Rapid mode - when true, skip input checks and only
 %                                                                                load REFPROP DLL once, do not unload it
 %                               CAUTION!!!! The user needs to take care with their inputs!!!
@@ -256,6 +256,12 @@
 %                                                    D: [3×1 double]
 %                                                    T: [293.15 400 542]
 %                                                    P: 101.325
+%
+% To change the equation of state used:
+% h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='PR2')
+% h1 = -12.7539
+% h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='PR3')
+% h1 = -12.7518
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Copyright 2019 - 2025 The MathWorks, Inc.
