@@ -93,7 +93,18 @@ _**Note: When keeping the library loaded, it is important for the user to rememb
     6. 'OT0;H0;S0;T0;P0' for ideal-gas state
         1. where H0, S0, T0, P0 are the actual numbers specified by user e.g. 'OT0;10.0;1.0;323.15;101.325'
         2. H0 in J/mol, S0 in J/mol-K, T0 in K, P0 in kPa
-14. RapidMode [REFPROP only] (boolean) this value should be provided as a (name, value) or name=value pair - defaults to false which will load and unload the REFPROP dll every time the funciton is called. It will also run all check on input values to ensure they are of the proper type and size. _**Keep this default**_ unless you plan to run the function call in a tight loop for more than order hundred iterations.
+14. equationOfState    = [REFPROP only] (char) this value should be provided as a (name, value) or name=value pair - Equation of State definition - if this is unspecified REFPROP uses the default definition in the fluid file. Accepted options for reference states by REFPROP: 
+    1. 'PRx' for Peng-Robinson where 
+        1. x = 0 (turn off)
+        2. x = 2 (use for all calculations)
+        3. x = 3 (use with translation term deactivated)
+    2. 'AGA8x' for AGA8 (American Gas Association) equation of state where 
+        1. x = 0 (turn off)
+        2. x = 1 (turn on)
+    3. 'GERGx' for GERG-2008 equation of state where 
+        1. x = 0 (turn off) 
+        2. x = 1 (turn on)
+15. RapidMode [REFPROP only] (boolean) this value should be provided as a (name, value) or name=value pair - defaults to false which will load and unload the REFPROP dll every time the funciton is called. It will also run all check on input values to ensure they are of the proper type and size. _**Keep this default**_ unless you plan to run the function call in a tight loop for more than order hundred iterations.
     1. If at all possible, pass in the input values as arrays and request multiple outputs from a single function call
     2. If you must call this funciton in a tight loop, only set this flag to true after you are certain you have provided the inputs to the funciton correctly
         1. Best Practice: if possible, remove this flag from your last funciton call to unload the REFPROP dll - if you do not, the REFPROP dll will remain loaded 
