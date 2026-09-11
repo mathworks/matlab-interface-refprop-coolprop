@@ -178,6 +178,11 @@
 %    x_R134a    = 0.24543
 %    x_R1234zeE = 0.093463
 %    
+%    To change the equation of state used:
+%    h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='PR2')
+%    h1 = -12.7539
+%    h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='PR3')
+%    h1 = -12.7518
 %
 % EXAMPLES for CoolProp:                                                                                                
 %    libLoc = 'C:\Program Files\CoolProp\';                                                                        
@@ -257,11 +262,6 @@
 %                                                    T: [293.15 400 542]
 %                                                    P: 101.325
 %
-% To change the equation of state used:
-% h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='PR2')
-% h1 = -12.7539
-% h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='PR3')
-% h1 = -12.7518
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Copyright 2019 - 2025 The MathWorks, Inc.
@@ -296,7 +296,7 @@ function requestedPropertyValue = getFluidProperty(libraryLocation, requestedPro
         opts.keepLibraryLoaded (1, 1) logical = false; % CoolProp ONLY
         opts.referenceState    (1, :) char    = '';    % REFPROP ONLY
         opts.equationOfState   (1, :) char    = '';    % REFPROP ONLY
-        opts.rapidMode         (1, 1) logical = false; % REFPROP ONLY - set to true to skip input checks - this will significantly speed up interations
+        opts.rapidMode         (1, 1) logical = false; % REFPROP ONLY - set to true to skip input checks - this will significantly speed up iterations
     end
 
     arguments (Output, Repeating)

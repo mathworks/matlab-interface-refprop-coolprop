@@ -428,3 +428,25 @@ disp("R1234ze(E): " + num2str(x_R1234zeE))
 % R1234yf:    0.24806
 % R134a:      0.24543
 % R1234ze(E): 0.093463
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% change the equation of state used %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+disp(newline + "Using Peng-Robinson for all calcuations")
+h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='PR2');
+disp("Output:")
+disp(h1);
+% h1 = -12.7539
+
+disp(newline + "Using Peng-Robinson with translation term deactivated")
+h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='PR3');
+disp("Output:")
+disp(h1);
+% h1 = -12.7518
+
+disp(newline + "Using GERG-2008")
+h1 = getFluidProperty(libLoc, 'H', 'T', 293.15, 'P', 101.325, 'Water', 1, 1, 'MKS', equationOfState='GERG1');
+disp("Output:")
+disp(h1);
+% h1 = -2.4602e+03
+

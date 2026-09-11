@@ -1,27 +1,32 @@
-/*=============================================================================================*
- *  hiLevelMexC.cpp - function written with MEX C api (rather than C++)                        *
- *                    but since REFPROP requires C++, the file is C++.                         *
- *                                                                                             *
- *  From MATLAB(R):                                                                            *
- *       output = hiLevelMexC(propReq, spec, Value1, Value2, fluid, MassOrMole)                *
- *                                                                                             *
- *  Where (see: https://refprop-docs.readthedocs.io/en/latest/DLL/high_level.html)             *
- *    output    = DOUBLE (array of size MxN) output from RefProp for the desired Property      *
- *                from propReq where M is the size of Value1 and N is the size of Value2       *
- *    propReq   = CHAR value accepted by REFPROP as 'hOut' values                              *
- *    specsum   = CHAR value accepted by REFPROP as 'hIn'  values                              *
- *    value1    = DOUBLE (array of size 1xM) of values related to the first character in spec  *
- *    value2    = DOUBLE (array of size 1xN) of values related to the second character in spec *
- *    fluid     = CHAR value accepted by REFPROP as 'hFld' values (for mulit-species,          *
- *                list numSpec fluids separated by a semicolon (;), where 1 < numSpec <= 20    *
- *    iMass     = INT value to determine input units: 0 -> Molar, 1 -> Mass (sets iMass)       *
- *    z         = DOUBLE (array of size 1x20) of species fractions where the number of         *
- *                speciecs numSpec matches the number of species listed in 'fluid' and         *
- *                1 < numSpec <= 20                                                            *
- *    unit_char = CHAR value to determine units to use (enum as expected by refprop.dll)       *
- *    path      = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)        *
- *    DebugOut  = DOUBLE value (0 to suppress, 1 to show) debug output in MATLAB console       *
- *=============================================================================================*/
+/*================================================================================================*
+ *  hiLevelMexC.cpp - function written with MEX C api (rather than C++)                           *
+ *                    but since REFPROP requires C++, the file is C++.                            *
+ *                                                                                                *
+ *  From MATLAB(R):                                                                               *
+ *       output = hiLevelMexC(propReq, spec, Value1, Value2, fluid, MassOrMole)                   *
+ *                                                                                                *
+ *  Where (see: https://refprop-docs.readthedocs.io/en/latest/DLL/high_level.html)                *
+ *    output       = DOUBLE (array of size MxN) output from RefProp for the desired Property      *
+ *                   from propReq where M is the size of Value1 and N is the size of Value2       *
+ *    propReq      = CHAR value accepted by REFPROP as 'hOut' values                              *
+ *    numReq       = DOUBLE number of required properties                                         *
+ *    spec         = CHAR value accepted by REFPROP as 'hIn'  values                              *
+ *    value1       = DOUBLE (array of size 1xM) of values related to the first character in spec  *
+ *    value2       = DOUBLE (array of size 1xN) of values related to the second character in spec *
+ *    fluid        = CHAR value accepted by REFPROP as 'hFld' values (for mulit-species,          *
+ *                   list numSpec fluids separated by a semicolon (;), where 1 < numSpec <= 20    *
+ *  MassOrMolar    = INT value to determine input units: 0 -> Molar, 1 -> Mass (sets iMass)       *
+ *  composition    = DOUBLE (array of size 1x20) of species fractions where the number of         *
+ *                   speciecs numSpec matches the number of species listed in 'fluid' and         *
+ *                   1 < numSpec <= 20                                                            *
+ * DesiredUnits    = CHAR value to determine units to use (enum as expected by refprop.dll)       *
+ * PathToRefprop   = CHAR path to Refprop directory (e.g. C:\\ProgramFiles (x86)\\REFPROP)        *
+ * ReferenceState  = CHAR reference state to use                                                  *
+ * EquationOfState = CHAR Equation of State                                                       *
+ * EOS_Flag        = DOUBLE flag for equation of state                                            *
+ * RapidMode       = BOOLEAN flag to use (true) rapid mode or not (false)                         *
+ *    DebugOut     = DOUBLE value (0 to suppress, 1 to show) debug output in MATLAB console       *
+ *================================================================================================*/
 
 // Copyright 2019 - 2025 The MathWorks, Inc.
 
