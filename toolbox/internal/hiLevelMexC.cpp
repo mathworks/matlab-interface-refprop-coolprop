@@ -399,7 +399,7 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
                 hInFLAG[3] = 'G';
                 hInFLAG[4] = 'S';
 
-                REFPROPdll(hFld, hInFLAG, eos, iUnits, iMass, eosFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
+                REFPROPdll("\0", hInFLAG, eos, iUnits, iMass, eosFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
             }
 
             ////////////////////////////////////////////////////////////////////////////
