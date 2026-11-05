@@ -398,9 +398,12 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
                 hInFLAG[2] = 'A';
                 hInFLAG[3] = 'G';
                 hInFLAG[4] = 'S';
-
-                REFPROPdll("\0", hInFLAG, eos, iUnits, iMass, eosFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
-            }
+                hInFLAG[5] = '\0';
+    
+                char mty [255];
+                mty[0] = '\0';
+                REFPROPdll(mty, hInFLAG, eos, iUnits, iMass, eosFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
+            } // end if adding eos
 
             ////////////////////////////////////////////////////////////////////////////
             // if the user has passed in a reference state tell REFPROP to run SETREF //
@@ -415,6 +418,7 @@ void mexFunction(int numOutArg, mxArray *outputs[], int numInArg, const mxArray 
                 hInFLAG[3] = 'R';
                 hInFLAG[4] = 'E';
                 hInFLAG[5] = 'F';
+                hInFLAG[6] = '\0';
                 
                 REFPROPdll(hFld, hInFLAG, hrf, iUnits, iMass, mixFlag, a, b, z, hOutput, hUnits, iUCode, x, y, x3, q, ierr, herr, hFld_length, hIn_length, hOut_length, hUnits_length, herr_length);
             }
